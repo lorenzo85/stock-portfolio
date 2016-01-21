@@ -2,7 +2,7 @@ package org.stock.portfolio.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.stock.portfolio.events.CodeEntriesUpdateEvent;
+import org.stock.portfolio.events.StockCodeHistoryUpdateEvent;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 import reactor.fn.Consumer;
@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 import static reactor.bus.selector.Selectors.$;
 
 @Service
-public class CassandraCodeEntriesUpdateEventConsumer implements Consumer<Event<CodeEntriesUpdateEvent>> {
+public class CassandraCodeEntriesUpdateEventConsumer implements Consumer<Event<StockCodeHistoryUpdateEvent>> {
 
     @Autowired
     private EventBus eventBus;
@@ -22,11 +22,11 @@ public class CassandraCodeEntriesUpdateEventConsumer implements Consumer<Event<C
 
     @PostConstruct
     public void onStartUp() {
-        eventBus.on($(CodeEntriesUpdateEvent.KEY), this);
+        eventBus.on($(StockCodeHistoryUpdateEvent.KEY), this);
     }
 
     @Override
-    public void accept(Event<CodeEntriesUpdateEvent> event) {
+    public void accept(Event<StockCodeHistoryUpdateEvent> event) {
         event.getData()
                 .getEntries()
                 .stream()

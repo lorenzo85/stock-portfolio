@@ -4,13 +4,13 @@ import org.stock.portfolio.domain.StockCode;
 
 import java.util.Collection;
 
-public class CodesUpdateEvent {
+public class StockCodesUpdateEvent {
 
-    public static final String KEY = CodesUpdateEvent.class.getSimpleName();
+    public static final String KEY = StockCodesUpdateEvent.class.getSimpleName();
 
     private final Collection<StockCode> codes;
 
-    public CodesUpdateEvent(Collection<StockCode> codes) {
+    public StockCodesUpdateEvent(Collection<StockCode> codes) {
         this.codes = codes;
     }
 

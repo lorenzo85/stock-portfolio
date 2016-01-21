@@ -6,8 +6,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.stock.portfolio.domain.StockCode;
 import org.stock.portfolio.domain.StockHistoryEntry;
-import org.stock.portfolio.events.CodeEntriesUpdateEvent;
-import org.stock.portfolio.events.CodesUpdateEvent;
+import org.stock.portfolio.events.StockCodeHistoryUpdateEvent;
+import org.stock.portfolio.events.StockCodesUpdateEvent;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
@@ -22,31 +22,43 @@ public class StockServiceImpl implements StockService {
     @Autowired
     @Qualifier("quandl")
     private StockServiceProvider quandl;
-
     @Autowired
     private EventBus eventBus;
 
     @Async
     @Override
-    public void updateStockCodeHistory(String marketId, String code) {
+    public void fetchStockCodeHistory(String marketId, String code) {
         checkNotNull(code);
         checkNotNull(marketId);
 
-        //ExecutorService executor = Executors.newFixedThreadPool(10);
-        //final RateLimiter rateLimiter = RateLimiter.create(1.0); // rate is "1 permits per second"
-        Collection<StockHistoryEntry> entries = quandl.updateStockCodeHistory(marketId, code);
+        Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code);
 
-        CodeEntriesUpdateEvent event = new CodeEntriesUpdateEvent(entries);
-        eventBus.notify(CodeEntriesUpdateEvent.KEY, Event.wrap(event));
+        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(entries);
+        eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
     }
 
     @Async
     @Override
-    public void updateStockCodes(String marketId) {
+    public void fetchStockCodesHistory(String marketId, String ...codes) {
         checkNotNull(marketId);
 
-        Collection<StockCode> codes = quandl.updateStockCodes(marketId);
-        CodesUpdateEvent event = new CodesUpdateEvent(codes);
-        eventBus.notify(CodesUpdateEvent.KEY, Event.wrap(event));
+        for (String code : codes) {
+            Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code);
+
+            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(entries);
+            eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+        }
+
+    }
+
+    @Async
+    @Override
+    public void fetchStockCodes(String marketId) {
+        checkNotNull(marketId);
+
+        Collection<StockCode> codes = quandl.fetchStockCodes(marketId);
+
+        StockCodesUpdateEvent event = new StockCodesUpdateEvent(codes);
+        eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
     }
 }

@@ -13,13 +13,13 @@ public class StockController {
     @RequestMapping(value = "/update/market/codes", method = RequestMethod.GET)
     @ResponseBody
     public void updateMarketCodes(@RequestParam(name = "marketid") String marketId) throws Exception {
-        stockService.updateStockCodes(marketId);
+        stockService.fetchStockCodes(marketId);
     }
 
     @RequestMapping(value = "/update/history/code", method = RequestMethod.GET)
     @ResponseBody
     public void updateHistoryCode(@RequestParam(name = "marketid") String marketId, @RequestParam(name = "code") String code) throws Exception {
-        stockService.updateStockCodeHistory(marketId, code);
+        stockService.fetchStockCodeHistory(marketId, code);
     }
 
 }

@@ -15,10 +15,10 @@ import org.stock.portfolio.service.quandl.mapper.StockCodeMapper;
 import org.stock.portfolio.service.quandl.mapper.StockHistoryMapper;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.*;
 
 
 @Service("quandl")
@@ -35,45 +35,33 @@ public class QuandlServiceImpl implements StockServiceProvider {
     @Autowired
     private Deserializer deserializer;
     @Autowired
-    private StockCodeMapper codeMapper;
+    private StockCodeMapper stockCodeMapper;
     @Autowired
     private StockHistoryMapper historyMapper;
     @Autowired
     private StockCodeRepository codeRepository;
 
 
-
     @Override
-    public Collection<StockCode> updateStockCodes(String marketId) {
+    public Collection<StockCode> fetchStockCodes(String marketId) {
         checkNotNull(marketId);
 
         String url = format(fetchDatabaseCodesURL, marketId);
-        try {
+        Collection<String> archiveFiles = downloadZipFileAndUnzip(url);
 
-            Collection<StockCode> codes = client.get(url)
-                    .bodyAsZip()
-                    .unzip()
-                    .stream()
-                    .filter(file -> file.endsWith(FileExtension.CSV.value()))
-                    .map(csvFile -> deserializer.deserialize(new FileReader(csvFile), StockCodeDto.class))
-                    .map(codeMapper::mapAll)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
-            codes.stream().forEach(code -> code.setMarketId(marketId));
-
-            return codes;
-
-        } catch (ZipFileException | HttpClientException e) {
-            throw new RuntimeException(e);
-        }
+        return archiveFiles.stream()
+                .filter(file -> file.endsWith(FileExtension.CSV.value()))
+                .map(csvFile -> deserializer.deserialize(csvFile, StockCodeDto.class))
+                .map(stockCodeMapper::mapAll)
+                .flatMap(Collection::stream)
+                .collect(toList());
     }
 
     @Override
-    public Collection<StockHistoryEntry> updateStockCodeHistory(String marketId, String code) {
+    public Collection<StockHistoryEntry> fetchStockCodeHistory(String marketId, String code) {
         checkNotNull(code);
         checkNotNull(marketId);
 
-        // TODO: Need to get rid of code repository dependency. Dataset is specific to quandl.
         StockCode stockCode = codeRepository.findByMarketIdAndCode(marketId, code);
         checkNotNull(stockCode);
 
@@ -83,15 +71,26 @@ public class QuandlServiceImpl implements StockServiceProvider {
         try {
             dto = client.get(url).bodyAsObject(StockHistoryWrapperDto.class);
         } catch (HttpClientException e) {
+            // TODO: Send to error queue.
             throw new RuntimeException(e);
         }
 
         Collection<StockHistoryEntry> entries = historyMapper.map(dto.getStockHistoryDto());
-        entries.stream().forEach(entry -> {
-            entry.setCode(code);
-            entry.setMarketId(marketId);
-        });
+        entries.stream()
+                .forEach(entry -> {
+                    entry.setCode(code);
+                    entry.setMarketId(marketId);
+                });
 
         return entries;
+    }
+
+    private Collection<String> downloadZipFileAndUnzip(String url) {
+        try {
+            return client.get(url).bodyAsZip().unzip();
+        } catch (ZipFileException | HttpClientException e) {
+            // TODO: Send to error queue.
+            throw new RuntimeException(e);
+        }
     }
 }

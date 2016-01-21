@@ -6,6 +6,9 @@ import org.stock.portfolio.domain.StockHistoryEntry;
 import java.util.Collection;
 
 public interface StockServiceProvider {
-    Collection<StockCode> updateStockCodes(String marketId);
-    Collection<StockHistoryEntry> updateStockCodeHistory(String marketId, String code);
+
+    Collection<StockCode> fetchStockCodes(String marketId);
+
+    Collection<StockHistoryEntry> fetchStockCodeHistory(String marketId, String code);
+
 }

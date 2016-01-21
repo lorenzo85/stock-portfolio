@@ -3,7 +3,7 @@ package org.stock.portfolio.indexer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.stock.portfolio.domain.StockCode;
-import org.stock.portfolio.events.CodesUpdateEvent;
+import org.stock.portfolio.events.StockCodesUpdateEvent;
 import org.stock.portfolio.indexer.dto.StockCodeDto;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-public class ElasticsearchEventConsumer implements Consumer<Event<CodesUpdateEvent>> {
+public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesUpdateEvent>> {
 
     @Autowired
     private EventBus eventBus;
@@ -24,12 +24,12 @@ public class ElasticsearchEventConsumer implements Consumer<Event<CodesUpdateEve
 
     @PostConstruct
     public void onStartUp() {
-        eventBus.on(Selectors.$(CodesUpdateEvent.KEY), this);
+        eventBus.on(Selectors.$(StockCodesUpdateEvent.KEY), this);
     }
 
     @Override
-    public void accept(Event<CodesUpdateEvent> event) {
-        CodesUpdateEvent data = event.getData();
+    public void accept(Event<StockCodesUpdateEvent> event) {
+        StockCodesUpdateEvent data = event.getData();
         Collection<StockCode> codes = data.getCodes();
 
         Collection<StockCodeDto> dtos = codes
