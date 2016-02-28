@@ -1,11 +1,10 @@
-package org.stock.portfolio.serialization;
+package org.stock.portfolio.service.serialization;
 
 import org.jsefa.csv.CsvIOFactory;
 import org.jsefa.csv.config.CsvConfiguration;
 import org.springframework.stereotype.Component;
-import org.stock.portfolio.commons.FileReader;
+import org.stock.portfolio.service.commons.FileReader;
 
-import java.io.Reader;
 import java.util.Collection;
 import java.util.HashSet;
 

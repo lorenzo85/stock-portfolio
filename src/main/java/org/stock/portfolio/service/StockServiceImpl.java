@@ -14,6 +14,8 @@ import reactor.bus.EventBus;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.stock.portfolio.events.Event.Result.FAIL;
+import static org.stock.portfolio.events.Event.Result.SUCCESS;
 
 
 @Service
@@ -27,28 +29,39 @@ public class StockServiceImpl implements StockService {
 
     @Async
     @Override
-    public void fetchStockCodeHistory(String marketId, String code) {
+    public void fetchStockCodeHistory(String marketId, String code, String dataset) {
         checkNotNull(code);
+        checkNotNull(dataset);
         checkNotNull(marketId);
 
-        Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code);
+        try {
+            Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code, dataset);
+            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, SUCCESS, entries);
+            eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
 
-        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(entries);
-        eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+        } catch (ServiceException e) {
+            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, FAIL);
+            eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+        }
     }
 
     @Async
     @Override
-    public void fetchStockCodesHistory(String marketId, String ...codes) {
+    public void fetchStockCodesHistory(String marketId, String dataset, String ...codes) {
+        checkNotNull(codes);
         checkNotNull(marketId);
 
         for (String code : codes) {
-            Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code);
+            try {
+                Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code, dataset);
+                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, SUCCESS, entries);
+                eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
 
-            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(entries);
-            eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+            } catch (ServiceException e) {
+                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, FAIL);
+                eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+            }
         }
-
     }
 
     @Async
@@ -56,9 +69,14 @@ public class StockServiceImpl implements StockService {
     public void fetchStockCodes(String marketId) {
         checkNotNull(marketId);
 
-        Collection<StockCode> codes = quandl.fetchStockCodes(marketId);
+        try {
+            Collection<StockCode> codes = quandl.fetchStockCodes(marketId);
+            StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, SUCCESS, codes);
+            eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
 
-        StockCodesUpdateEvent event = new StockCodesUpdateEvent(codes);
-        eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
+        } catch (ServiceException e) {
+            StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, FAIL);
+            eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
+        }
     }
 }

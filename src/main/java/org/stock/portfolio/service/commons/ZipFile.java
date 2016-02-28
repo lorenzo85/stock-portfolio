@@ -1,4 +1,4 @@
-package org.stock.portfolio.commons;
+package org.stock.portfolio.service.commons;
 
 import net.lingala.zip4j.exception.ZipException;
 

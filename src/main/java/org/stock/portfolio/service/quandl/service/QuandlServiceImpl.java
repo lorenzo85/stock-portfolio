@@ -1,24 +1,30 @@
 package org.stock.portfolio.service.quandl.service;
 
+
+import com.diffplug.common.base.Errors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.stock.portfolio.commons.*;
 import org.stock.portfolio.domain.StockCode;
 import org.stock.portfolio.domain.StockHistoryEntry;
-import org.stock.portfolio.repository.StockCodeRepository;
-import org.stock.portfolio.serialization.Deserializer;
+import org.stock.portfolio.service.ServiceException;
 import org.stock.portfolio.service.StockServiceProvider;
+import org.stock.portfolio.service.commons.FileExtension;
+import org.stock.portfolio.service.commons.HttpClient;
+import org.stock.portfolio.service.commons.HttpClientException;
+import org.stock.portfolio.service.commons.ZipFileException;
 import org.stock.portfolio.service.quandl.dto.StockCodeDto;
 import org.stock.portfolio.service.quandl.dto.StockHistoryWrapperDto;
 import org.stock.portfolio.service.quandl.mapper.StockCodeMapper;
 import org.stock.portfolio.service.quandl.mapper.StockHistoryMapper;
+import org.stock.portfolio.service.serialization.Deserializer;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 
 @Service("quandl")
@@ -39,58 +45,48 @@ public class QuandlServiceImpl implements StockServiceProvider {
     @Autowired
     private StockHistoryMapper historyMapper;
     @Autowired
-    private StockCodeRepository codeRepository;
+    private Errors.Handling handler;
 
 
     @Override
-    public Collection<StockCode> fetchStockCodes(String marketId) {
+    public Collection<StockCode> fetchStockCodes(String marketId) throws ServiceException {
         checkNotNull(marketId);
 
         String url = format(fetchDatabaseCodesURL, marketId);
-        Collection<String> archiveFiles = downloadZipFileAndUnzip(url);
-
-        return archiveFiles.stream()
+        return getAndUnzip(url)
+                .stream()
                 .filter(file -> file.endsWith(FileExtension.CSV.value()))
-                .map(csvFile -> deserializer.deserialize(csvFile, StockCodeDto.class))
+                .map(handler.wrapWithDefault(csvFile -> deserializer.deserialize(csvFile, StockCodeDto.class), Collections.<StockCodeDto>emptyList()))
                 .map(stockCodeMapper::mapAll)
                 .flatMap(Collection::stream)
                 .collect(toList());
     }
 
     @Override
-    public Collection<StockHistoryEntry> fetchStockCodeHistory(String marketId, String code) {
+    public Collection<StockHistoryEntry> fetchStockCodeHistory(String marketId, String code, String dataset) throws ServiceException {
         checkNotNull(code);
+        checkNotNull(dataset);
         checkNotNull(marketId);
 
-        StockCode stockCode = codeRepository.findByMarketIdAndCode(marketId, code);
-        checkNotNull(stockCode);
-
-        String url = format(fetchCodeDataSerieURL, stockCode.getDataset(), stockCode.getCode(), quandlApiKey);
-
-        StockHistoryWrapperDto dto;
-        try {
-            dto = client.get(url).bodyAsObject(StockHistoryWrapperDto.class);
-        } catch (HttpClientException e) {
-            // TODO: Send to error queue.
-            throw new RuntimeException(e);
-        }
-
-        Collection<StockHistoryEntry> entries = historyMapper.map(dto.getStockHistoryDto());
-        entries.stream()
-                .forEach(entry -> {
-                    entry.setCode(code);
-                    entry.setMarketId(marketId);
-                });
-
-        return entries;
+        String url = format(fetchCodeDataSerieURL, dataset, code, quandlApiKey);
+        StockHistoryWrapperDto dto = getAndAsObject(url, StockHistoryWrapperDto.class);
+        return historyMapper.map(dto.getStockHistoryDto());
     }
 
-    private Collection<String> downloadZipFileAndUnzip(String url) {
+
+    private <T> T getAndAsObject(String url, Class<? extends T> clazz) throws ServiceException {
+        try {
+            return client.get(url).bodyAsObject(clazz);
+        } catch (HttpClientException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    private Collection<String> getAndUnzip(String url) throws ServiceException {
         try {
             return client.get(url).bodyAsZip().unzip();
         } catch (ZipFileException | HttpClientException e) {
-            // TODO: Send to error queue.
-            throw new RuntimeException(e);
+            throw new ServiceException(e);
         }
     }
 }

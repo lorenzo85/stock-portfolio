@@ -1,4 +1,4 @@
-package org.stock.portfolio.serialization;
+package org.stock.portfolio.service.serialization;
 
 import java.util.Collection;
 

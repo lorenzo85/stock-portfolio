@@ -1,8 +1,8 @@
-package org.stock.portfolio.commons;
+package org.stock.portfolio.service.commons;
 
 public enum FileExtension {
 
-    CSV(".csv");
+    CSV(".csv"), ZIP(".zip");
 
     private String value;
 

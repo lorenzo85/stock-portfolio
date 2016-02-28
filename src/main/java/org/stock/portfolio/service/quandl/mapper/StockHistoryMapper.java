@@ -1,7 +1,7 @@
 package org.stock.portfolio.service.quandl.mapper;
 
 import org.springframework.stereotype.Component;
-import org.stock.portfolio.commons.DefaultDateFormat;
+import org.stock.portfolio.service.commons.DefaultDateFormat;
 import org.stock.portfolio.domain.StockHistoryEntry;
 import org.stock.portfolio.service.quandl.dto.StockHistoryDto;
 
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Component("stockHistoryMapper")
+@Component
 public class StockHistoryMapper implements Mapper<StockHistoryDto, Collection<StockHistoryEntry>> {
 
     private static final DefaultDateFormat DATE_FORMAT = new DefaultDateFormat("yyyy-MM-dd");

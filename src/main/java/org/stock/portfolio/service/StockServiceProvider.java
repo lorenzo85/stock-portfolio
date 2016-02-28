@@ -7,8 +7,8 @@ import java.util.Collection;
 
 public interface StockServiceProvider {
 
-    Collection<StockCode> fetchStockCodes(String marketId);
+    Collection<StockCode> fetchStockCodes(String marketId) throws ServiceException;
 
-    Collection<StockHistoryEntry> fetchStockCodeHistory(String marketId, String code);
+    Collection<StockHistoryEntry> fetchStockCodeHistory(String marketId, String code, String dataset) throws ServiceException;
 
 }

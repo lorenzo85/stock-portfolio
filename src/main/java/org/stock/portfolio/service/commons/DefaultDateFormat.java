@@ -1,4 +1,4 @@
-package org.stock.portfolio.commons;
+package org.stock.portfolio.service.commons;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

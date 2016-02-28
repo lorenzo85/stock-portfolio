@@ -1,4 +1,4 @@
-package org.stock.portfolio.commons;
+package org.stock.portfolio.service.commons;
 
 import org.apache.commons.httpclient.HttpMethod;
 

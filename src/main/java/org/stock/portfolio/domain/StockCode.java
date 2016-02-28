@@ -49,4 +49,14 @@ public class StockCode {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "StockCode{" +
+                "marketId='" + marketId + '\'' +
+                ", code='" + code + '\'' +
+                ", dataset='" + dataset + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }
