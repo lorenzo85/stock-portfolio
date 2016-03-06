@@ -11,8 +11,8 @@ import reactor.fn.Consumer;
 
 import javax.annotation.PostConstruct;
 
-import static java.lang.String.*;
-import static org.stock.portfolio.events.Event.*;
+import static java.lang.String.format;
+import static org.stock.portfolio.events.Event.Result;
 import static reactor.bus.selector.Selectors.$;
 
 @Service

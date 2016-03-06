@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 public class FileReader extends Reader {
 

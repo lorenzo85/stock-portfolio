@@ -5,7 +5,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.stock.portfolio.events.ServiceExceptionEvent;
-import org.stock.portfolio.events.StockCodeHistoryUpdateEvent;
 import org.stock.portfolio.service.commons.HttpClientPool;
 import reactor.bus.Event;
 import reactor.bus.EventBus;

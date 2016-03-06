@@ -7,7 +7,7 @@ import org.stock.portfolio.repository.StockCodeRepository;
 import org.stock.portfolio.service.StockService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 @RestController
 public class StockController {
