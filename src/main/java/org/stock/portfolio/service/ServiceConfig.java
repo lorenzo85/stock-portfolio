@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.stock.portfolio.events.ServiceExceptionEvent;
 import org.stock.portfolio.events.StockCodeHistoryUpdateEvent;
+import org.stock.portfolio.service.commons.HttpClientPool;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
@@ -19,6 +20,11 @@ public class ServiceConfig {
     @Bean
     public com.diffplug.common.base.Errors.Handling errorHandler(EventBus bus) {
         return com.diffplug.common.base.Errors.createHandling(new Publish(bus));
+    }
+
+    @Bean
+    public HttpClientPool httpClientPool() {
+        return new HttpClientPool();
     }
 
     static class Publish implements Consumer<Throwable> {
