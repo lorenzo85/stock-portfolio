@@ -1,5 +1,8 @@
 package org.stock.portfolio.service;
 
+import com.google.common.util.concurrent.RateLimiter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
@@ -14,12 +17,15 @@ import reactor.bus.EventBus;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 import static org.stock.portfolio.events.Event.Result.FAIL;
 import static org.stock.portfolio.events.Event.Result.SUCCESS;
 
 
 @Service
 public class StockServiceImpl implements StockService {
+
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("quandl")
@@ -36,11 +42,11 @@ public class StockServiceImpl implements StockService {
 
         try {
             Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code, dataset);
-            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, SUCCESS, entries);
+            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
             eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
 
-        } catch (ServiceException e) {
-            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, FAIL);
+        } catch (Exception e) {
+            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, e, FAIL);
             eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
         }
     }
@@ -54,13 +60,34 @@ public class StockServiceImpl implements StockService {
         for (String code : codes) {
             try {
                 Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code, dataset);
-                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, SUCCESS, entries);
+                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
                 eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
 
-            } catch (ServiceException e) {
-                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, FAIL);
+            } catch (Exception e) {
+                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, e, FAIL);
                 eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
             }
+        }
+    }
+
+    @Async
+    @Override
+    public void fetchAllStockCodeHistory(Iterable<StockCode> allCodes) {
+        // Quandl limit: 2000 calls/10 minutes - 50000 calls / day
+        final RateLimiter rateLimiter = RateLimiter.create(2.0); // rate is "1 permits per second"
+
+        int count = 0;
+        for (StockCode c : allCodes) {
+            rateLimiter.acquire(); // may wait
+            count++;
+
+            String code = c.getCode();
+            String dataset = c.getDataset();
+            String markedId = c.getMarketId();
+
+            LOG.info(format("Fetching stock code #%d, market=%s, code=%s, dataset=%s", count, markedId, code, dataset));
+
+            fetchStockCodeHistory(markedId, code, dataset);
         }
     }
 
@@ -74,8 +101,8 @@ public class StockServiceImpl implements StockService {
             StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, SUCCESS, codes);
             eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
 
-        } catch (ServiceException e) {
-            StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, FAIL);
+        } catch (Exception e) {
+            StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, e, FAIL);
             eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
         }
     }

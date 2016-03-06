@@ -10,9 +10,7 @@ import org.stock.portfolio.domain.StockHistoryEntry;
 import org.stock.portfolio.service.ServiceException;
 import org.stock.portfolio.service.StockServiceProvider;
 import org.stock.portfolio.service.commons.FileExtension;
-import org.stock.portfolio.service.commons.HttpClient;
-import org.stock.portfolio.service.commons.HttpClientException;
-import org.stock.portfolio.service.commons.ZipFileException;
+import org.stock.portfolio.service.commons.HttpClientPool;
 import org.stock.portfolio.service.quandl.dto.StockCodeDto;
 import org.stock.portfolio.service.quandl.dto.StockHistoryWrapperDto;
 import org.stock.portfolio.service.quandl.mapper.StockCodeMapper;
@@ -37,7 +35,7 @@ public class QuandlServiceImpl implements StockServiceProvider {
     @Value("${quandl.fetch.stockCode.data.series}")
     private String fetchCodeDataSerieURL;
     @Autowired
-    private HttpClient client;
+    private HttpClientPool clientPool;
     @Autowired
     private Deserializer deserializer;
     @Autowired
@@ -49,11 +47,13 @@ public class QuandlServiceImpl implements StockServiceProvider {
 
 
     @Override
-    public Collection<StockCode> fetchStockCodes(String marketId) throws ServiceException {
+    public Collection<StockCode> fetchStockCodes(String marketId) {
         checkNotNull(marketId);
 
         String url = format(fetchDatabaseCodesURL, marketId);
-        return getAndUnzip(url)
+        return clientPool.client()
+                .getAsZip(url)
+                .unzip()
                 .stream()
                 .filter(file -> file.endsWith(FileExtension.CSV.value()))
                 .map(handler.wrapWithDefault(csvFile -> deserializer.deserialize(csvFile, StockCodeDto.class), Collections.<StockCodeDto>emptyList()))
@@ -69,24 +69,9 @@ public class QuandlServiceImpl implements StockServiceProvider {
         checkNotNull(marketId);
 
         String url = format(fetchCodeDataSerieURL, dataset, code, quandlApiKey);
-        StockHistoryWrapperDto dto = getAndAsObject(url, StockHistoryWrapperDto.class);
+
+        StockHistoryWrapperDto dto = clientPool.client().getAsObject(url, StockHistoryWrapperDto.class);
         return historyMapper.map(dto.getStockHistoryDto());
     }
 
-
-    private <T> T getAndAsObject(String url, Class<? extends T> clazz) throws ServiceException {
-        try {
-            return client.get(url).bodyAsObject(clazz);
-        } catch (HttpClientException e) {
-            throw new ServiceException(e);
-        }
-    }
-
-    private Collection<String> getAndUnzip(String url) throws ServiceException {
-        try {
-            return client.get(url).bodyAsZip().unzip();
-        } catch (ZipFileException | HttpClientException e) {
-            throw new ServiceException(e);
-        }
-    }
 }

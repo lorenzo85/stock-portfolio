@@ -29,7 +29,15 @@ public class StockController {
         StockCode byMarketIdAndCode = repository.findByMarketIdAndCode(marketId, code);
         checkNotNull(byMarketIdAndCode, format("Could not find stock code for marketId=[%s] and code=[%s]", marketId, code));
 
-        stockService.fetchStockCodeHistory(marketId, code, byMarketIdAndCode.getDataset());
+        String dataset = byMarketIdAndCode.getDataset();
+        stockService.fetchStockCodeHistory(marketId, code, dataset);
+    }
+
+    @RequestMapping(value = "/update/history/code/all", method = RequestMethod.GET)
+    @ResponseBody
+    public void updateHistoryCode() {
+        Iterable<StockCode> allCodes = repository.findAll();
+        stockService.fetchAllStockCodeHistory(allCodes);
     }
 
 }

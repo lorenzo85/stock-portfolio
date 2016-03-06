@@ -1,21 +1,25 @@
 package org.stock.portfolio.service.commons;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.util.Date;
 
-public class DefaultDateFormat extends SimpleDateFormat {
+
+public class DefaultDateFormat {
+
+    private final DateTimeFormatter pattern;
 
     public DefaultDateFormat(String pattern) {
-        super(pattern);
+        this.pattern = DateTimeFormat.forPattern(pattern);
     }
 
-    public Date parseString(String source) {
-        try {
-            return parse(source);
-        } catch (ParseException e) {
-            throw new RuntimeException(String.format("Could not parse %s", source));
-        }
+    public DateTime parseString(String source) {
+        return pattern.parseDateTime(source);
     }
 
+    public String format(Date date) {
+        return Integer.toString(new DateTime(date).getYear());
+    }
 }

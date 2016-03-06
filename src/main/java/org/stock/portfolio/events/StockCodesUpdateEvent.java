@@ -14,9 +14,11 @@ public class StockCodesUpdateEvent implements Event {
     private final String marketId;
     private final Result result;
     private final Collection<StockCode> codes;
+    private Exception exception;
 
-    public StockCodesUpdateEvent(String marketId, Result success) {
+    public StockCodesUpdateEvent(String marketId, Exception e, Result success) {
         this(marketId, success, new ArrayList<>());
+        this.exception = e;
     }
 
     public StockCodesUpdateEvent(String marketId, Result result, Collection<StockCode> codes) {
@@ -39,5 +41,9 @@ public class StockCodesUpdateEvent implements Event {
 
     public Result getResult() {
         return result;
+    }
+
+    public Exception getException() {
+        return exception;
     }
 }

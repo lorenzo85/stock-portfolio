@@ -11,24 +11,30 @@ public class StockCodeHistoryUpdateEvent implements Event {
 
     public static final String KEY = StockCodeHistoryUpdateEvent.class.getSimpleName();
 
+    private Exception exception;
+
     private final String code;
     private final Result result;
+    private final String dataset;
     private final String marketId;
     private final Collection<StockHistoryEntry> entries;
 
-    public StockCodeHistoryUpdateEvent(String marketId, String code, Result result) {
-        this(marketId, code, result, new ArrayList<>());
+    public StockCodeHistoryUpdateEvent(String marketId, String code, String dataset, Exception e, Result result) {
+        this(marketId, code, dataset, result, new ArrayList<>());
+        this.exception = e;
     }
 
-    public StockCodeHistoryUpdateEvent(String marketId, String code, Result result, Collection<StockHistoryEntry> entries) {
+    public StockCodeHistoryUpdateEvent(String marketId, String code, String dataset, Result result, Collection<StockHistoryEntry> entries) {
         checkNotNull(marketId);
         checkNotNull(code);
         checkNotNull(result);
         checkNotNull(entries);
+        checkNotNull(dataset);
 
         this.code = code;
         this.result = result;
         this.entries = entries;
+        this.dataset = dataset;
         this.marketId = marketId;
     }
 
@@ -48,4 +54,11 @@ public class StockCodeHistoryUpdateEvent implements Event {
         return marketId;
     }
 
+    public String getDataset() {
+        return dataset;
+    }
+
+    public Exception getException() {
+        return exception;
+    }
 }

@@ -1,12 +1,11 @@
 package org.stock.portfolio.service.commons;
 
-import org.apache.commons.httpclient.HttpMethod;
-
-import java.io.IOException;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import static java.lang.String.format;
 
-public class HttpClientException extends Exception {
+// TODO: Fix this
+public class HttpClientException extends RuntimeException {
 
     private static final String ERROR_MSG = "HTTP request error. Answered with status=%d, body=%s";
 
@@ -14,16 +13,9 @@ public class HttpClientException extends Exception {
         super(throwable);
     }
 
-    public HttpClientException(HttpMethod method) {
-        super(format(ERROR_MSG, method.getStatusCode(), unwrapBody(method)));
+    public HttpClientException(HttpUriRequest method) {
+        super(format(ERROR_MSG, null, null));
     }
 
-    private static String unwrapBody(HttpMethod method) {
-        try {
-            return method.getResponseBodyAsString();
-        } catch (IOException e) {
-            return null;
-        }
-    }
 
 }

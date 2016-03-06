@@ -31,6 +31,7 @@ public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesUpda
     public void accept(Event<StockCodesUpdateEvent> event) {
         StockCodesUpdateEvent data = event.getData();
         Collection<StockCode> codes = data.getCodes();
+        codes.forEach(c -> c.setMarketId(data.getMarketId()));
 
         Collection<StockCodeDto> dtos = codes
                 .stream()

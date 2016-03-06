@@ -1,5 +1,6 @@
 package org.stock.portfolio.domain;
 
+import org.joda.time.DateTime;
 import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
@@ -41,8 +42,8 @@ public class StockHistoryEntry {
         this.year = year;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(DateTime date) {
+        this.date = date.toDate();
     }
 
     public void setOpenPrice(double openPrice) {
