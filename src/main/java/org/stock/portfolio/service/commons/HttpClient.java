@@ -8,52 +8,41 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.UUID;
 
-import static java.lang.String.format;
 import static org.stock.portfolio.service.commons.FileExtension.ZIP;
 
 
+@Service
+@Scope("singleton")
 public class HttpClient {
 
-    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private final CloseableHttpClient client;
 
-    public HttpClient(CloseableHttpClient client) {
-        this.client = client;
+    public HttpClient() {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        this.client = HttpClients.custom()
+                .disableCookieManagement()
+                .setConnectionManager(connectionManager).build();
     }
 
-    private HttpResponse get(String url) throws HttpClientException {
-        HttpUriRequest method = new HttpGet(url);
+    public <T> T getAsObject(String url, Class<T> clazz) throws HttpClientException {
+        HttpResponse response = get(url);
 
-
-        int status;
-        CloseableHttpResponse response = null;
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            LOG.debug(format("HTTP Request: executing GET on URL=%s", url));
-
-            response = client.execute(method);
-            status = response.getStatusLine().getStatusCode();
-
-            if (status != HttpStatus.SC_OK) throw new HttpClientException(method);
-
-            return response;
-
+            return mapper.readValue(response.getEntity().getContent(), clazz);
         } catch (IOException e) {
             throw new HttpClientException(e);
-        }
-    }
-
-    private void consume(HttpResponse response) throws HttpClientException {
-        try {
-            EntityUtils.consume(response.getEntity());
-        } catch (IOException e) {
-            throw new HttpClientException(e);
+        } finally {
+            consume(response);
         }
     }
 
@@ -85,16 +74,28 @@ public class HttpClient {
         }
     }
 
-    public <T> T getAsObject(String url, Class<T> clazz) throws HttpClientException {
-        HttpResponse response = get(url);
+    private HttpResponse get(String url) throws HttpClientException {
+        HttpUriRequest method = new HttpGet(url);
 
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(response.getEntity().getContent(), clazz);
+            CloseableHttpResponse response = client.execute(method);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status != HttpStatus.SC_OK) throw new HttpClientException(method);
+
+            return response;
+
         } catch (IOException e) {
             throw new HttpClientException(e);
-        } finally {
-            consume(response);
         }
     }
+
+    private void consume(HttpResponse response) throws HttpClientException {
+        try {
+            EntityUtils.consume(response.getEntity());
+        } catch (IOException e) {
+            throw new HttpClientException(e);
+        }
+    }
+
 }

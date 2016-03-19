@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 @Component
-public class FileDeserializer implements Deserializer {
+public class CSVDeserializer implements Deserializer {
 
     @Override
     public <T> Collection<T> deserialize(String filePath, Class<? extends T> type) {

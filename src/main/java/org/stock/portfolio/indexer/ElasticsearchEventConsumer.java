@@ -1,9 +1,11 @@
 package org.stock.portfolio.indexer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.stock.portfolio.domain.StockCode;
-import org.stock.portfolio.events.StockCodesUpdateEvent;
+import org.stock.portfolio.events.StockCodesIndexEvent;
 import org.stock.portfolio.indexer.dto.StockCodeDto;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -14,8 +16,13 @@ import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+import static org.stock.portfolio.events.Event.Result;
+
 @Service
-public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesUpdateEvent>> {
+public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesIndexEvent>> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchEventConsumer.class);
 
     @Autowired
     private EventBus eventBus;
@@ -24,12 +31,20 @@ public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesUpda
 
     @PostConstruct
     public void onStartUp() {
-        eventBus.on(Selectors.$(StockCodesUpdateEvent.KEY), this);
+        eventBus.on(Selectors.$(StockCodesIndexEvent.KEY), this);
     }
 
     @Override
-    public void accept(Event<StockCodesUpdateEvent> event) {
-        StockCodesUpdateEvent data = event.getData();
+    public void accept(Event<StockCodesIndexEvent> event) {
+        StockCodesIndexEvent updateEvent = event.getData();
+        String marketId = updateEvent.getMarketId();
+
+        if (updateEvent.getResult() == Result.FAIL) {
+            LOG.warn(format("Error while updating marketId=%s", marketId));
+            return;
+        }
+
+        StockCodesIndexEvent data = event.getData();
         Collection<StockCode> codes = data.getCodes();
         codes.forEach(c -> c.setMarketId(data.getMarketId()));
 

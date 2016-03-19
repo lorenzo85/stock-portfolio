@@ -2,48 +2,17 @@ package org.stock.portfolio.events;
 
 import org.stock.portfolio.domain.StockCode;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class StockCodesUpdateEvent implements Event {
+public class StockCodesUpdateEvent extends AbstractStockCodesEvent {
 
     public static final String KEY = StockCodesUpdateEvent.class.getSimpleName();
 
-    private final String marketId;
-    private final Result result;
-    private final Collection<StockCode> codes;
-    private Exception exception;
-
-    public StockCodesUpdateEvent(String marketId, Exception e, Result success) {
-        this(marketId, success, new ArrayList<>());
-        this.exception = e;
+    public StockCodesUpdateEvent(String marketId, Throwable e, Result success) {
+        super(marketId, e, success);
     }
 
     public StockCodesUpdateEvent(String marketId, Result result, Collection<StockCode> codes) {
-        checkNotNull(marketId);
-        checkNotNull(result);
-        checkNotNull(codes);
-
-        this.codes = codes;
-        this.result = result;
-        this.marketId = marketId;
-    }
-
-    public Collection<StockCode> getCodes() {
-        return codes;
-    }
-
-    public String getMarketId() {
-        return marketId;
-    }
-
-    public Result getResult() {
-        return result;
-    }
-
-    public Exception getException() {
-        return exception;
+        super(marketId, result, codes);
     }
 }

@@ -10,7 +10,7 @@ import org.stock.portfolio.domain.StockHistoryEntry;
 import org.stock.portfolio.service.ServiceException;
 import org.stock.portfolio.service.StockServiceProvider;
 import org.stock.portfolio.service.commons.FileExtension;
-import org.stock.portfolio.service.commons.HttpClientPool;
+import org.stock.portfolio.service.commons.HttpClient;
 import org.stock.portfolio.service.quandl.dto.StockCodeDto;
 import org.stock.portfolio.service.quandl.dto.StockHistoryWrapperDto;
 import org.stock.portfolio.service.quandl.mapper.StockCodeMapper;
@@ -35,15 +35,15 @@ public class QuandlServiceImpl implements StockServiceProvider {
     @Value("${quandl.fetch.stockCode.data.series}")
     private String fetchCodeDataSerieURL;
     @Autowired
-    private HttpClientPool clientPool;
+    private HttpClient client;
+    @Autowired
+    private Errors.Handling handler;
     @Autowired
     private Deserializer deserializer;
     @Autowired
     private StockCodeMapper stockCodeMapper;
     @Autowired
     private StockHistoryMapper historyMapper;
-    @Autowired
-    private Errors.Handling handler;
 
 
     @Override
@@ -51,8 +51,7 @@ public class QuandlServiceImpl implements StockServiceProvider {
         checkNotNull(marketId);
 
         String url = format(fetchDatabaseCodesURL, marketId);
-        return clientPool.client()
-                .getAsZip(url)
+        return client.getAsZip(url)
                 .unzip()
                 .stream()
                 .filter(file -> file.endsWith(FileExtension.CSV.value()))
@@ -70,7 +69,7 @@ public class QuandlServiceImpl implements StockServiceProvider {
 
         String url = format(fetchCodeDataSerieURL, dataset, code, quandlApiKey);
 
-        StockHistoryWrapperDto dto = clientPool.client().getAsObject(url, StockHistoryWrapperDto.class);
+        StockHistoryWrapperDto dto = client.getAsObject(url, StockHistoryWrapperDto.class);
         return historyMapper.map(dto.getStockHistoryDto());
     }
 

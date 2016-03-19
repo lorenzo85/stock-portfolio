@@ -18,7 +18,7 @@ import static reactor.bus.selector.Selectors.$;
 @Service
 public class CassandraCodeUpdateEventConsumer implements Consumer<Event<StockCodesUpdateEvent>> {
 
-    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOG = LoggerFactory.getLogger(CassandraCodeUpdateEventConsumer.class);
 
     @Autowired
     private EventBus eventBus;

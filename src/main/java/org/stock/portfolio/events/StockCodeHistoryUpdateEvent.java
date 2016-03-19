@@ -11,7 +11,7 @@ public class StockCodeHistoryUpdateEvent implements Event {
 
     public static final String KEY = StockCodeHistoryUpdateEvent.class.getSimpleName();
 
-    private Exception exception;
+    private Throwable exception;
 
     private final String code;
     private final Result result;
@@ -19,7 +19,7 @@ public class StockCodeHistoryUpdateEvent implements Event {
     private final String marketId;
     private final Collection<StockHistoryEntry> entries;
 
-    public StockCodeHistoryUpdateEvent(String marketId, String code, String dataset, Exception e, Result result) {
+    public StockCodeHistoryUpdateEvent(String marketId, String code, String dataset, Throwable e, Result result) {
         this(marketId, code, dataset, result, new ArrayList<>());
         this.exception = e;
     }
@@ -58,7 +58,7 @@ public class StockCodeHistoryUpdateEvent implements Event {
         return dataset;
     }
 
-    public Exception getException() {
+    public Throwable getException() {
         return exception;
     }
 }

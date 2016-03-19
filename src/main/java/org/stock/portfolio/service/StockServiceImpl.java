@@ -5,11 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.stock.portfolio.domain.StockCode;
 import org.stock.portfolio.domain.StockHistoryEntry;
 import org.stock.portfolio.events.StockCodeHistoryUpdateEvent;
+import org.stock.portfolio.events.StockCodesIndexEvent;
 import org.stock.portfolio.events.StockCodesUpdateEvent;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -28,10 +31,39 @@ public class StockServiceImpl implements StockService {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private EventBus eventBus;
+    @Autowired
     @Qualifier("quandl")
     private StockServiceProvider quandl;
     @Autowired
-    private EventBus eventBus;
+    private SimpleAsyncTaskExecutor executor;
+
+    @Async
+    @Override
+    public void fetchStockCodes(String marketId) {
+        checkNotNull(marketId);
+
+        executor.submitListenable(() -> quandl.fetchStockCodes(marketId))
+                .addCallback(new ListenableFutureCallback<Collection<StockCode>>() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        StockCodesUpdateEvent storeEvent = new StockCodesUpdateEvent(marketId, throwable, FAIL);
+                        eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(storeEvent));
+
+                        StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(marketId, throwable, FAIL);
+                        eventBus.notify(StockCodesIndexEvent.KEY, Event.wrap(indexEvent));
+                    }
+
+                    @Override
+                    public void onSuccess(Collection<StockCode> codes) {
+                        StockCodesUpdateEvent storeEvent = new StockCodesUpdateEvent(marketId, SUCCESS, codes);
+                        eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(storeEvent));
+
+                        StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(marketId, SUCCESS, codes);
+                        eventBus.notify(StockCodesIndexEvent.KEY, Event.wrap(indexEvent));
+                    }
+                });
+    }
 
     @Async
     @Override
@@ -40,41 +72,27 @@ public class StockServiceImpl implements StockService {
         checkNotNull(dataset);
         checkNotNull(marketId);
 
-        try {
-            Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code, dataset);
-            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
-            eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+        executor.submitListenable(() -> quandl.fetchStockCodeHistory(marketId, code, dataset))
+                .addCallback(new ListenableFutureCallback<Collection<StockHistoryEntry>>() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, throwable, FAIL);
+                        eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+                    }
 
-        } catch (Exception e) {
-            StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, e, FAIL);
-            eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
-        }
-    }
-
-    @Async
-    @Override
-    public void fetchStockCodesHistory(String marketId, String dataset, String ...codes) {
-        checkNotNull(codes);
-        checkNotNull(marketId);
-
-        for (String code : codes) {
-            try {
-                Collection<StockHistoryEntry> entries = quandl.fetchStockCodeHistory(marketId, code, dataset);
-                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
-                eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
-
-            } catch (Exception e) {
-                StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, e, FAIL);
-                eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
-            }
-        }
+                    @Override
+                    public void onSuccess(Collection<StockHistoryEntry> entries) {
+                        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
+                        eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+                    }
+                });
     }
 
     @Async
     @Override
     public void fetchAllStockCodeHistory(Iterable<StockCode> allCodes) {
         // Quandl limit: 2000 calls/10 minutes - 50000 calls / day
-        final RateLimiter rateLimiter = RateLimiter.create(2.0); // rate is "1 permits per second"
+        final RateLimiter rateLimiter = RateLimiter.create(2.0); // rate is "2 permits per second"
 
         int count = 0;
         for (StockCode c : allCodes) {
@@ -88,22 +106,6 @@ public class StockServiceImpl implements StockService {
             LOG.info(format("Fetching stock code #%d, market=%s, code=%s, dataset=%s", count, markedId, code, dataset));
 
             fetchStockCodeHistory(markedId, code, dataset);
-        }
-    }
-
-    @Async
-    @Override
-    public void fetchStockCodes(String marketId) {
-        checkNotNull(marketId);
-
-        try {
-            Collection<StockCode> codes = quandl.fetchStockCodes(marketId);
-            StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, SUCCESS, codes);
-            eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
-
-        } catch (Exception e) {
-            StockCodesUpdateEvent event = new StockCodesUpdateEvent(marketId, e, FAIL);
-            eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(event));
         }
     }
 }

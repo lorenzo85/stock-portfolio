@@ -1,5 +1,6 @@
 package org.stock.portfolio.indexer;
 
+import org.elasticsearch.client.Client;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -13,7 +14,12 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 public class ElasticsearchConfig {
 
     @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchTemplate(nodeBuilder().local(true).node().client());
+    public Client elasticsearchClient() {
+        return nodeBuilder().local(true).node().client();
+    }
+
+    @Bean
+    public ElasticsearchOperations elasticsearchTemplate(Client client) {
+        return new ElasticsearchTemplate(client);
     }
 }

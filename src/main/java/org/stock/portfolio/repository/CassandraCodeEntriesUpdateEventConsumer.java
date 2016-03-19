@@ -39,7 +39,7 @@ public class CassandraCodeEntriesUpdateEventConsumer implements Consumer<Event<S
         String code = updateEvent.getCode();
 
         if (updateEvent.getResult() == Result.FAIL) {
-            Exception e = updateEvent.getException();
+            Throwable e = updateEvent.getException();
             LOG.warn(format("Error while updating history for code=%s, marketId=%s, dataset=%s", marketId, code, dataset), e);
             return;
         }

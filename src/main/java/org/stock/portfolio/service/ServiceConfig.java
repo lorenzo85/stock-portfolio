@@ -3,9 +3,9 @@ package org.stock.portfolio.service;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.stock.portfolio.events.ServiceExceptionEvent;
-import org.stock.portfolio.service.commons.HttpClientPool;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
@@ -16,14 +16,18 @@ import java.util.function.Consumer;
 @ComponentScan(basePackages = "org.stock.portfolio.service.*")
 public class ServiceConfig {
 
+    public static final int MAX_POOL_SIZE = 10;
+
     @Bean
-    public com.diffplug.common.base.Errors.Handling errorHandler(EventBus bus) {
-        return com.diffplug.common.base.Errors.createHandling(new Publish(bus));
+    public SimpleAsyncTaskExecutor executor() {
+        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+        executor.setConcurrencyLimit(MAX_POOL_SIZE);
+        return executor;
     }
 
     @Bean
-    public HttpClientPool httpClientPool() {
-        return new HttpClientPool();
+    public com.diffplug.common.base.Errors.Handling errorHandler(EventBus bus) {
+        return com.diffplug.common.base.Errors.createHandling(new Publish(bus));
     }
 
     static class Publish implements Consumer<Throwable> {

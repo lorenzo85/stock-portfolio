@@ -10,7 +10,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
 @RestController
-public class StockController {
+public class StockCommandController {
 
     @Autowired
     private StockService stockService;
