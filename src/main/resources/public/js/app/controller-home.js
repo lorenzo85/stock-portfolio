@@ -1,4 +1,4 @@
-var app = angular.module('indexControllers', []);
+var app = angular.module('homeController', []);
 
 app.controller('IndexController', function ($scope, StockCodes) {
 
