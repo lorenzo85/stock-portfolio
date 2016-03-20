@@ -1,7 +1,9 @@
 var app = angular.module('app', [
     'ngResource',
+    'toggle-switch',
     'resources',
     'ngMaterial',
+    'ngAnimate',
     'ui.router',
     'ui.bootstrap',
     'navigationController',
@@ -18,7 +20,6 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 
     $stateProvider.state('home', {
         url: '/home',
-        parent: 'navigation',
         templateUrl: 'views/home.html',
         controller: 'IndexController'
 

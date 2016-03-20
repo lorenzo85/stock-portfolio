@@ -2,15 +2,25 @@
 <html>
 <head>
     <title>Optimal Portfolio App</title>
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/sb-admin-2.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="css/angular-material.min.css" rel="stylesheet">
+    <link href="css/metisMenu.min.css" rel="stylesheet">
+    <link href="css/angular-toggle-switch-bootstrap.css" rel="stylesheet">
+    <link href="css/angular-toggle-switch.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
 </head>
 
 <body ng-app="app" ng-cloak>
 
-    <!-- Main content area -->
-    <div ui-view></div>
+    <div id="wrapper">
+        <header></header>
+        <div id="page-wrapper" style="min-height: 561px; padding: 20px;">
+            <div ui-view></div>
+        </div>
+    </div>
 
     <!-- JQuery -->
     <script src="js/jquery/jquery.min.js"></script>
@@ -26,12 +36,22 @@
     <script src="js/angular/angular-resource.min.js"></script>
     <script src="js/angular/angular-ui-router.min.js"></script>
     <script src="js/angular/ui-bootstrap-tpls.min.js"></script>
+    <script src="js/angular/angular-toggle-switch.min.js"></script>
+
+    <!-- Metis menu -->
+    <script src="js/metismenu/metisMenu.min.js"></script>
 
     <!-- App -->
     <script src="js/app/app.js"></script>
-    <script src="js/app/resources-stock.js"></script>
-    <script src="js/app/controller-home.js"></script>
-    <script src="js/app/controller-navigation.js"></script>
+    <script src="js/app/rest/stock.js"></script>
+    <script src="js/app/controllers/home.js"></script>
+    <script src="js/app/controllers/navigation.js"></script>
+    <script src="js/app/directives/sidebar/sidebar.js"></script>
+    <script src="js/app/directives/header/header.js"></script>
+    <script src="js/app/directives/header/header-notification/header-notification.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/scripts/sb-admin-2.js"></script>
 
 </body>
 </html>

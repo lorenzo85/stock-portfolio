@@ -1,44 +1,47 @@
-<div class="container">
-        <div class="col-lg-6">
-            <p>Total Market codes: {{ marketCodes.totalElements }}</p>
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="code in marketCodes.content">
-                    <h4>{{ code.code }}&nbsp; - &nbsp;<small>{{code.description}}</small></h4>
-                </li>
-            </ul>
+<div class="row">
+<div class="col-lg-6">
+    <md-content class="md-padding">
+        <p>Search for stock <code>ticker</code> symbol.</p>
+        <md-autocomplete
+                md-min-length="1"
+                md-no-cache="false"
+                md-item-text="item.suggestion.code"
+                md-search-text="searchText"
+                placeholder="Search ticker ..."
+                md-items="item in querySearch(searchText)"
+                md-selected-item-change="selectedItemChange(item)">
 
-            <uib-pagination num-pages="totalPages"
-                            items-per-page="pageSize"
-                            max-size="maxSize"
-                            total-items="totalItems"
-                            ng-model="currentPage"
-                            ng-change="pageChanged()"
-                            force-ellipses="true"></uib-pagination>
-        </div>
-        <div class="col-lg-6">
-            <md-content class="md-padding">
-                <p>Search for stock <code>ticker</code> symbol.</p>
-                <md-autocomplete
-                        md-min-length="1"
-                        md-no-cache="false"
-                        md-item-text="item.suggestion.code"
-                        md-search-text="searchText"
-                        placeholder="Search ticker ..."
-                        md-items="item in querySearch(searchText)"
-                        md-selected-item-change="selectedItemChange(item)">
+            <md-item-template>
+                <code>{{item.suggestion.code}}</code> - <small>{{ item.suggestion.description}}</small>
 
-                    <md-item-template>
-                        <code>{{item.suggestion.code}}</code> - <small>{{ item.suggestion.description}}</small>
+            </md-item-template>
+            <md-not-found>
+                No tickers matching "<code>{{searchText}}</code>" were found.
+            </md-not-found>
+        </md-autocomplete>
+        <br>
+        <p ng-show="selectedTicker != undefined">
+            Selected ticker <code>{{selectedTicker.suggestion.code}}</code> -
+            {{ selectedTicker.suggestion.description}}.</p>
+    </md-content>
+</div>
 
-                    </md-item-template>
-                    <md-not-found>
-                        No tickers matching "<code>{{searchText}}</code>" were found.
-                    </md-not-found>
-                </md-autocomplete>
-                <br>
-                <p ng-show="selectedTicker != undefined">
-                    Selected ticker <code>{{selectedTicker.suggestion.code}}</code> -
-                    {{ selectedTicker.suggestion.description}}.</p>
-            </md-content>
-        </div>
+    <div class="col-lg-6">
+        <h4>Total Market codes: {{ marketCodes.totalElements }}</h4>
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="code in marketCodes.content">
+                <h4>{{ code.code }}&nbsp; - &nbsp;
+                    <small>{{code.description}}</small>
+                </h4>
+            </li>
+        </ul>
+
+        <uib-pagination num-pages="totalPages"
+                        items-per-page="pageSize"
+                        max-size="maxSize"
+                        total-items="totalItems"
+                        ng-model="currentPage"
+                        ng-change="pageChanged()"
+                        force-ellipses="true"></uib-pagination>
+    </div>
 </div>
