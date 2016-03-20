@@ -4,14 +4,10 @@
     <title>Optimal Portfolio App</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-theme.min.css" rel="stylesheet">
-    <style type="text/css">
-        [ng\:cloak], [ng-cloak], .ng-cloak {
-            display: none !important;
-        }
-    </style>
+    <link href="css/angular-material.min.css" rel="stylesheet">
 </head>
 
-<body ng-app="app">
+<body ng-app="app" ng-cloak>
 
     <div class="container" ng-controller="IndexController">
         <div class="row">
@@ -41,18 +37,32 @@
                                 force-ellipses="true"></uib-pagination>
             </div>
             <div class="col-lg-6">
-                <div class="input-group">
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-                    <input type="text" ng-model="query" class="form-control" placeholder="Search ticker symbol ... " ng-change="search(query)">
-                </div>
-                <div class="well-sm">
-                    <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="res in searchResults">
-                            <h6>{{ res }}</h6>
-                        </li>
-                    </ul>
-                </div>
-        </div>
+
+                <md-content class="md-padding">
+                        <p>Search for stock <code>ticker</code> symbol.</p>
+                        <md-autocomplete
+                                md-min-length="1"
+                                md-no-cache="false"
+                                md-item-text="item.suggestion.code"
+                                md-search-text="searchText"
+                                placeholder="Search ticker ..."
+                                md-items="item in querySearch(searchText)"
+                                md-selected-item-change="selectedItemChange(item)">
+
+                            <md-item-template>
+                                <code>{{item.suggestion.code}}</code> - <small>{{ item.suggestion.description}}</small>
+
+                            </md-item-template>
+                            <md-not-found>
+                                No tickers matching "<code>{{searchText}}</code>" were found.
+                            </md-not-found>
+                        </md-autocomplete>
+                        <br>
+                        <p ng-show="selectedTicker != undefined">
+                            Selected ticker <code>{{selectedTicker.suggestion.code}}</code> -
+                            {{ selectedTicker.suggestion.description}}.</p>
+                </md-content>
+             </div>
         </div>
     </div>
 
@@ -60,10 +70,13 @@
     <script src="js/jquery/jquery.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
     <script src="js/angular/angular.min.js"></script>
+    <script src="js/angular/angular-aria.min.js"></script>
+    <script src="js/angular/angular-animate.min.js"></script>
+    <script src="js/angular/angular-material.min.js"></script>
     <script src="js/angular/angular-resource.min.js"></script>
     <script src="js/angular/ui-bootstrap-tpls.min.js"></script>
 
-    <!-- Angular Js App -->
+    <!-- App -->
     <script src="js/app/app.js"></script>
     <script src="js/app/resources-stock.js"></script>
     <script src="js/app/controller-index.js"></script>

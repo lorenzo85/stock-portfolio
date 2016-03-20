@@ -12,7 +12,6 @@ import reactor.fn.Consumer;
 import javax.annotation.PostConstruct;
 
 import static java.lang.String.format;
-import static org.stock.portfolio.events.Event.Result;
 import static reactor.bus.selector.Selectors.$;
 
 @Service
@@ -35,17 +34,17 @@ public class CassandraCodeUpdateEventConsumer implements Consumer<Event<StockCod
         StockCodesUpdateEvent updateEvent = event.getData();
         String marketId = updateEvent.getMarketId();
 
-        if (updateEvent.getResult() == Result.FAIL) {
+        if (updateEvent.failed()) {
             LOG.warn(format("Error while updating marketId=%s", marketId));
-            return;
-        }
 
-        event.getData()
-                .getCodes()
-                .stream()
-                .forEach(c -> {
-                    c.setMarketId(marketId);
-                    repository.save(c);
-                });
+        } else {
+            event.getData()
+                    .getCodes()
+                    .stream()
+                    .forEach(code -> {
+                        code.setMarketId(marketId);
+                        repository.save(code);
+                    });
+        }
     }
 }

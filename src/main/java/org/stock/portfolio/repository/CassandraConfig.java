@@ -17,7 +17,7 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 
 @Configuration
 @PropertySource(value = {"classpath:META-INF/cassandra.properties"})
-@EnableCassandraRepositories(basePackages = "org.stock.portfolio")
+@EnableCassandraRepositories(basePackages = "org.stock.portfolio.repository")
 public class CassandraConfig {
 
     @Autowired

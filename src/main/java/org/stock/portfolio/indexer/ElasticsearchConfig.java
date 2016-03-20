@@ -22,4 +22,5 @@ public class ElasticsearchConfig {
     public ElasticsearchOperations elasticsearchTemplate(Client client) {
         return new ElasticsearchTemplate(client);
     }
+
 }

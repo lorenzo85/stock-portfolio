@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.stock.portfolio.events.Event.Result;
 
 @Service
 public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesIndexEvent>> {
@@ -39,20 +38,20 @@ public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesInde
         StockCodesIndexEvent updateEvent = event.getData();
         String marketId = updateEvent.getMarketId();
 
-        if (updateEvent.getResult() == Result.FAIL) {
+        if (updateEvent.failed()) {
             LOG.warn(format("Error while updating marketId=%s", marketId));
-            return;
+
+        } else {
+            StockCodesIndexEvent data = event.getData();
+            Collection<StockCode> codes = data.getCodes();
+            codes.forEach(c -> c.setMarketId(data.getMarketId()));
+
+            Collection<StockCodeDto> dtos = codes
+                    .stream()
+                    .map(StockCodeDto::fromEntity)
+                    .collect(Collectors.toList());
+
+            repository.save(dtos);
         }
-
-        StockCodesIndexEvent data = event.getData();
-        Collection<StockCode> codes = data.getCodes();
-        codes.forEach(c -> c.setMarketId(data.getMarketId()));
-
-        Collection<StockCodeDto> dtos = codes
-                .stream()
-                .map(StockCodeDto::new)
-                .collect(Collectors.toList());
-
-        repository.save(dtos);
     }
 }

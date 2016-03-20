@@ -17,7 +17,7 @@ public class StockCodesIndexEvent extends AbstractStockCodesEvent {
         super(marketId, result, codes);
     }
 
-    public StockCodesIndexEvent(String marketId, Result result, StockCode code) {
-        super(marketId, result, Collections.singletonList(code));
+    public StockCodesIndexEvent(Result result, StockCode code) {
+        super(code.getMarketId(), result, Collections.singletonList(code));
     }
 }

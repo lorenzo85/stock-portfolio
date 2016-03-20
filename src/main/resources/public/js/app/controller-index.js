@@ -2,13 +2,11 @@ var app = angular.module('indexControllers', []);
 
 app.controller('IndexController', function ($scope, StockCodes) {
 
+    // -- Pagination specific methods
     $scope.currentPage = 0;
     $scope.totalPages = 0;
     $scope.pageSize = 5;
     $scope.maxSize = 5;
-
-    $scope.searchResults = [];
-
 
     $scope.marketCodes = StockCodes.get({size: $scope.pageSize, page: $scope.currentPage}, function(data) {
         $scope.totalItems = data.totalElements;
@@ -23,13 +21,21 @@ app.controller('IndexController', function ($scope, StockCodes) {
         $scope.marketCodes = StockCodes.get({size: $scope.pageSize, page: $scope.currentPage - 1});
     };
 
-    $scope.search = function(term) {
-        // Term is empty
-        if (!term) {
-            $scope.searchResults = [];
-        } else {
-            $scope.searchResults = StockCodes.prefixSearch({term: term});
+
+    // -- Autocomplete specific methods
+    $scope.isDisabled    = false;
+    $scope.selectedTicker = undefined;
+
+    $scope.querySearch = function(term) {
+        var results = [];
+        if (term) {
+            results = StockCodes.prefixSearch({term: term});
         }
-    }
+        return results;
+    };
+
+    $scope.selectedItemChange = function(item) {
+        $scope.selectedTicker = item;
+    };
 
 });

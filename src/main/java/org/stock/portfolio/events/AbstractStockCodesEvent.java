@@ -46,4 +46,7 @@ abstract class AbstractStockCodesEvent implements Event {
         return exception;
     }
 
+    public boolean failed() {
+        return result == Result.FAIL;
+    }
 }

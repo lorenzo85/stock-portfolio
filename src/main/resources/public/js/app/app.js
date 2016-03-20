@@ -1,6 +1,7 @@
 var app = angular.module('app', [
     'ngResource',
     'resources',
+    'ngMaterial',
     'ui.bootstrap',
     'indexControllers']);
 
