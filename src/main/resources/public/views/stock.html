@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+    </div>
+</div>
+<br>
+
+<div class="row">
+
+    <!-- Updates history for given code belonging to market -->
+    <div class="col-lg-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Update history for code</div>
+            <div class="panel-body">
+                <p>Updates history for given code belonging to market.</p>
+                <form role="form" ng-submit="updateSingleHistoryCode()">
+                    <div class="form-group">
+                        <label for="codeMarketId">Market ID</label>
+                        <input id="codeMarketId"
+                               type="text"
+                               class="form-control"
+                               placeholder="LSE"
+                               ng-model="marketId"
+                               minlength="1"
+                               required />
+
+                        <label for="code">Code</label>
+                        <input id="code"
+                               type="text"
+                               class="form-control"
+                               placeholder="APT"
+                               ng-model="code"
+                               minlength="1"
+                               required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Updates codes for a market -->
+    <div class="col-lg-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Update market codes</div>
+            <div class="panel-body">
+                <p>This operation updates all codes for given market ID.</p>
+                <form role="form" ng-submit="updateMarketCodes()">
+                    <div class="form-group">
+                        <label for="marketId">Market ID</label>
+                        <input id="marketId"
+                               type="text"
+                               class="form-control"
+                               placeholder="LSE"
+                               ng-model="marketId"
+                               minlength="1"
+                               required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Updates all histories for available market codes -->
+    <div class="col-lg-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Update all histories</div>
+            <div class="panel-body">
+                <p>Updates all histories for available market codes.</p>
+                <button class="btn btn-danger" ng-click="updateHistoryCode()">Execute</button>
+            </div>
+        </div>
+    </div>
+</div>

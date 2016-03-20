@@ -1,17 +1,10 @@
 var app = angular.module('app', [
     'ngResource',
     'toggle-switch',
-    'resources',
     'ngMaterial',
     'ngAnimate',
     'ui.router',
-    'ui.bootstrap',
-    'navigationController',
-    'homeController']);
-
-app.constant("config", {
-    "url": "http://localhost:8080"
-});
+    'ui.bootstrap']);
 
 
 app.config(function ($stateProvider, $urlRouterProvider) {
@@ -21,11 +14,26 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider.state('home', {
         url: '/home',
         templateUrl: 'views/home.html',
-        controller: 'IndexController'
+        controller: 'HomeController'
 
-    }).state('navigation', {
-        templateUrl: 'views/navigation.html',
-        controller: 'NavigationController'
-    });
+    }).state('chart', {
+        url: '/chart',
+        templateUrl: 'views/chart.html',
+        controller: 'ChartController'
 
+    }).state('indexer', {
+        url: '/indexer',
+        templateUrl: 'views/indexer.html',
+        controller: 'IndexerController'
+
+    }).state('stock', {
+        url: '/stock',
+        templateUrl: 'views/stock.html',
+        controller: 'StockController'
+    })
+
+});
+
+app.constant("config", {
+    "url": "http://localhost:8080"
 });
