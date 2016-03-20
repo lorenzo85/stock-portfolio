@@ -1,5 +1,6 @@
 package org.stock.portfolio.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -27,6 +28,9 @@ public class IndexerQueryController {
     private Client client;
     @Autowired
     private StockCodeElasticSearchRepository repository;
+    @Autowired
+    private ObjectMapper mapper;
+
 
 
     @RequestMapping(value = "/query/stock/codes/{size}/{page}", method = GET)
@@ -40,7 +44,7 @@ public class IndexerQueryController {
     @RequestMapping(value = "/query/stock/codes/search/{term}", method = GET)
     @ResponseBody
     public List<StockCodeSuggestionDto> findStockCodeByTerm(@PathVariable("term") String term) {
-        return StockCodeDto.completionSuggestByTerm(client, term);
+        return StockCodeDto.completionSuggestByTerm(mapper, client, term);
     }
 
 }

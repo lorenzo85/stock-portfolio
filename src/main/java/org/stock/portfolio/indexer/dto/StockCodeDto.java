@@ -2,7 +2,6 @@ package org.stock.portfolio.indexer.dto;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.suggest.Suggest;
@@ -28,12 +27,6 @@ import static org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
         shards = StockCodeDto.INDEX_SHARDS)
 public class StockCodeDto {
 
-    public static final ObjectMapper JSON_MAPPER;
-
-    static {
-        JSON_MAPPER = new ObjectMapper();
-        JSON_MAPPER.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-    }
 
     public static final String INDEX_NAME = "stock-code-index";
     public static final String INDEX_TYPE = "stock-code";
@@ -58,11 +51,11 @@ public class StockCodeDto {
         //required by mapper to instantiate object
     }
 
-    public static StockCodeDto fromEntity(StockCode stockCode) {
+    public static StockCodeDto fromEntity(ObjectMapper mapper, StockCode stockCode) {
         StockCodeDto dto = new StockCodeDto(stockCode);
 
         String code = stockCode.getCode();
-        String payload = serializePayload(dto);
+        String payload = serializePayload(mapper, dto);
 
         Completion completion = new Completion(new String[]{code});
         completion.setPayload(payload);
@@ -111,7 +104,7 @@ public class StockCodeDto {
 
 
     @SuppressWarnings("unchecked")
-    public static List<StockCodeSuggestionDto> completionSuggestByTerm(Client client, String term) {
+    public static List<StockCodeSuggestionDto> completionSuggestByTerm(ObjectMapper mapper, Client client, String term) {
         CompletionSuggestionBuilder builder = new CompletionSuggestionBuilder(COMPLETION_NAME)
                 .field("suggest")
                 .text(term)
@@ -127,17 +120,17 @@ public class StockCodeDto {
         List<StockCodeSuggestionDto> results = new ArrayList<>();
 
         for (Entry next : (Iterable<Entry>) suggestions) {
-            next.getOptions().forEach(object -> {
-                results.add(new StockCodeSuggestionDto(object));
-            });
+            next.getOptions()
+                    .forEach(object ->
+                            results.add(StockCodeSuggestionDto.fromOption(mapper, object)));
         }
 
         return results;
     }
 
-    private static String serializePayload(StockCodeDto dto) {
+    private static String serializePayload(ObjectMapper mapper, StockCodeDto dto) {
         try {
-            return JSON_MAPPER
+            return mapper
                     .writerWithView(JsonViews.Payload.class)
                     .writeValueAsString(dto);
         } catch (JsonProcessingException e) {
@@ -145,9 +138,9 @@ public class StockCodeDto {
         }
     }
 
-    public static StockCodeDto deserializePayload(String json) {
+    public static StockCodeDto deserializePayload(ObjectMapper mapper, String json) {
         try {
-            return JSON_MAPPER
+            return mapper
                     .readerWithView(JsonViews.Payload.class)
                     .forType(StockCodeDto.class)
                     .readValue(json);

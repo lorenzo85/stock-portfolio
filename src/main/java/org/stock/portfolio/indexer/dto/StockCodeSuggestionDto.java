@@ -1,18 +1,22 @@
 package org.stock.portfolio.indexer.dto;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class StockCodeSuggestionDto {
 
-    private final StockCodeDto suggestion;
+    private StockCodeDto suggestion;
 
-    public StockCodeSuggestionDto(Object optionObject) {
-        checkArgument(optionObject instanceof CompletionSuggestion.Entry.Option);
+    public static StockCodeSuggestionDto fromOption(ObjectMapper mapper, Object option) {
+        checkArgument(option instanceof CompletionSuggestion.Entry.Option);
 
-        CompletionSuggestion.Entry.Option option = (CompletionSuggestion.Entry.Option) optionObject;
-        this.suggestion = StockCodeDto.deserializePayload(option.getPayloadAsString());
+        CompletionSuggestion.Entry.Option completion = (CompletionSuggestion.Entry.Option) option;
+
+        StockCodeSuggestionDto dto = new StockCodeSuggestionDto();
+        dto.suggestion = StockCodeDto.deserializePayload(mapper, completion.getPayloadAsString());
+        return dto;
     }
 
     public StockCodeDto getSuggestion() {

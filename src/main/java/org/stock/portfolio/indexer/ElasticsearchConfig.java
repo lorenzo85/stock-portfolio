@@ -1,5 +1,7 @@
 package org.stock.portfolio.indexer;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.client.Client;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,4 +25,10 @@ public class ElasticsearchConfig {
         return new ElasticsearchTemplate(client);
     }
 
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        return mapper;
+    }
 }

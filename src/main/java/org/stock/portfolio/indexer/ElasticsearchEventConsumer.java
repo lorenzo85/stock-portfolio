@@ -1,5 +1,6 @@
 package org.stock.portfolio.indexer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesInde
     private EventBus eventBus;
     @Autowired
     private StockCodeElasticSearchRepository repository;
+    @Autowired
+    private ObjectMapper mapper;
 
     @PostConstruct
     public void onStartUp() {
@@ -48,7 +51,7 @@ public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesInde
 
             Collection<StockCodeDto> dtos = codes
                     .stream()
-                    .map(StockCodeDto::fromEntity)
+                    .map(code -> StockCodeDto.fromEntity(mapper, code))
                     .collect(Collectors.toList());
 
             repository.save(dtos);
