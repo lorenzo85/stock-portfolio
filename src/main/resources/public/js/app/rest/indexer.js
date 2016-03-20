@@ -14,6 +14,11 @@ app.factory('Indexer', function ($resource, config) {
         reindex: {
             url: config.url + '/indexer/codes/reindex',
             method: 'GET'
+        },
+
+        totalCodes: {
+            url: config.url + '/query/stock/codes/total',
+            method: 'GET'
         }
     });
 });

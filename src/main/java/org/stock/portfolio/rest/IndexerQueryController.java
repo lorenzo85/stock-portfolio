@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.stock.portfolio.indexer.StockCodeElasticSearchRepository;
 import org.stock.portfolio.indexer.dto.StockCodeDto;
 import org.stock.portfolio.indexer.dto.StockCodeSuggestionDto;
+import org.stock.portfolio.indexer.dto.TotalCountDto;
 
 import java.util.List;
 
@@ -27,10 +28,9 @@ public class IndexerQueryController {
     @Autowired
     private Client client;
     @Autowired
-    private StockCodeElasticSearchRepository repository;
-    @Autowired
     private ObjectMapper mapper;
-
+    @Autowired
+    private StockCodeElasticSearchRepository repository;
 
 
     @RequestMapping(value = "/query/stock/codes/{size}/{page}", method = GET)
@@ -45,6 +45,13 @@ public class IndexerQueryController {
     @ResponseBody
     public List<StockCodeSuggestionDto> findStockCodeByTerm(@PathVariable("term") String term) {
         return StockCodeDto.completionSuggestByTerm(mapper, client, term);
+    }
+
+    @RequestMapping(value = "/query/stock/codes/total", method = GET)
+    @ResponseBody
+    public TotalCountDto totalStockCodes() {
+        FacetedPage<StockCodeDto> page = allStockCodes(0, 1);
+        return new TotalCountDto(page.getTotalElements());
     }
 
 }
