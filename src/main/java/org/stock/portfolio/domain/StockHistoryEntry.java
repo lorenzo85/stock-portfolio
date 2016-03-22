@@ -61,4 +61,36 @@ public class StockHistoryEntry {
     public void setClosePrice(double closePrice) {
         this.closePrice = closePrice;
     }
+
+    public String getMarketId() {
+        return marketId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public double getOpenPrice() {
+        return openPrice;
+    }
+
+    public double getHighPrice() {
+        return highPrice;
+    }
+
+    public double getLowPrice() {
+        return lowPrice;
+    }
+
+    public double getClosePrice() {
+        return closePrice;
+    }
 }

@@ -6,31 +6,39 @@
 <br>
 
 <div class="row">
-    <!-- All stock codes with pagination -->
+
+    <!-- Suggest stock codes history by term -->
     <div class="col-lg-6">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                Fetch all stock codes
+                Suggest stock code history
             </div>
             <div class="panel-body">
-                <p>Fetches all indexed stock codes from Elasticsearch.</p>
+                <p>Suggests a list of stock codes history <code>tickers</code> matching the query term.</p>
+                <md-autocomplete
+                        md-min-length="1"
+                        md-no-cache="false"
+                        md-item-text="entry.suggestion.code"
+                        md-search-text="_searchText"
+                        placeholder="Search ticker history ..."
+                        md-items="entry in h_querySearch(_searchText)"
+                        md-selected-item-change="h_selectedItemChange(entry)">
+                    <md-item-template>
+                        <code>{{entry.suggestion.code}}</code> -
+                        <small>{{ entry.suggestion.closePrice }}</small> -
+                        <small>{{ entry.suggestion.date | date:'medium'}}</small>
+                    </md-item-template>
+                    <md-not-found>
+                        No tickers matching "<code>{{_searchText}}</code>" were found.
+                    </md-not-found>
+                </md-autocomplete>
+                <br>
 
-                <div class="col-lg-12">
-                    <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="code in marketCodes.content">
-                            <h4>{{ code.code }}&nbsp; - &nbsp;
-                                <small>{{code.description}}</small>
-                            </h4>
-                        </li>
-                    </ul>
-                    <uib-pagination num-pages="totalPages"
-                                    items-per-page="pageSize"
-                                    max-size="maxSize"
-                                    total-items="totalItems"
-                                    ng-model="currentPage"
-                                    ng-change="pageChanged()"
-                                    force-ellipses="true"></uib-pagination>
-                </div>
+                <p ng-show="h_selectedTicker != undefined">
+                    Selected ticker history <code>{{h_selectedTicker.suggestion.code}}</code> -
+                    {{ h_selectedTicker.suggestion.closePrice}} -
+                    {{ h_selectedTicker.suggestion.date | date:'medium'}}
+                </p>
             </div>
         </div>
     </div>
@@ -71,8 +79,37 @@
 
 
 <div class="row">
+    <!-- All stock codes with pagination -->
+    <div class="col-lg-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Fetch all stock codes
+            </div>
+            <div class="panel-body">
+                <p>Fetches all indexed stock codes from Elasticsearch.</p>
+
+                <div class="col-lg-12">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="code in marketCodes.content">
+                            <h4>{{ code.code }}&nbsp; - &nbsp;
+                                <small>{{code.description}}</small>
+                            </h4>
+                        </li>
+                    </ul>
+                    <uib-pagination num-pages="totalPages"
+                                    items-per-page="pageSize"
+                                    max-size="maxSize"
+                                    total-items="totalItems"
+                                    ng-model="currentPage"
+                                    ng-change="pageChanged()"
+                                    force-ellipses="true"></uib-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Reindex -->
-    <div class="col-lg-12">
+    <div class="col-lg-6">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 Reindex

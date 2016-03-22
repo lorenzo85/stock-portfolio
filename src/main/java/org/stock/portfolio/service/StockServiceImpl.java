@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.stock.portfolio.domain.StockCode;
 import org.stock.portfolio.domain.StockHistoryEntry;
+import org.stock.portfolio.events.StockCodeHistoryIndexEvent;
 import org.stock.portfolio.events.StockCodeHistoryUpdateEvent;
 import org.stock.portfolio.events.StockCodesIndexEvent;
 import org.stock.portfolio.events.StockCodesUpdateEvent;
@@ -84,6 +85,14 @@ public class StockServiceImpl implements StockService {
                     public void onSuccess(Collection<StockHistoryEntry> entries) {
                         StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
                         eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
+
+                        entries.forEach(historyEntry -> {
+                            historyEntry.setCode(code);
+                            historyEntry.setMarketId(marketId);
+                        });
+
+                        StockCodeHistoryIndexEvent indexEvent = new StockCodeHistoryIndexEvent(SUCCESS, entries);
+                        eventBus.notify(StockCodeHistoryIndexEvent.KEY, Event.wrap(indexEvent));
                     }
                 });
     }

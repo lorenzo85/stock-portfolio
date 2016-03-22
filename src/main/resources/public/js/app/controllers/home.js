@@ -5,4 +5,6 @@ app.controller('HomeController', function ($scope, Indexer) {
     $scope.totalCodes = Indexer.totalCodes();
 
 
+    $scope.totalCodesHistory = Indexer.totalCodesHistory();
+
 });

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.stock.portfolio.events.StockCodesIndexEvent;
 import org.stock.portfolio.repository.StockCodeRepository;
+import org.stock.portfolio.repository.StockTimeSeriesRepository;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
@@ -17,15 +18,17 @@ import static org.stock.portfolio.events.Event.Result.SUCCESS;
 public class IndexerCommandController {
 
     @Autowired
-    private StockCodeRepository cassandraRepository;
-    @Autowired
     private EventBus eventBus;
+    @Autowired
+    private StockCodeRepository stockRepository;
+    @Autowired
+    private StockTimeSeriesRepository historyRepository;
 
 
     @RequestMapping(value = "/indexer/codes/reindex", method = RequestMethod.GET)
     @ResponseBody
     public void indexerReindexCodes() {
-        cassandraRepository.findAll()
+        stockRepository.findAll()
                 .forEach(code -> {
                     StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(SUCCESS, code);
                     eventBus.notify(StockCodesIndexEvent.KEY, Event.wrap(indexEvent));

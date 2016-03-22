@@ -43,6 +43,23 @@ app.controller('IndexerController', function ($scope, Indexer) {
     // -- Reindex
     $scope.reindex = function () {
         Indexer.reindex();
-    }
+    };
+
+    // -- Suggester history
+    $scope.h_isDisabled = false;
+    $scope.h_selectedTicker = undefined;
+
+    $scope.h_querySearch = function (term) {
+        var results = [];
+        if (term) {
+            results = Indexer.prefixHistorySearch({term: term});
+        }
+        return results;
+    };
+
+    $scope.h_selectedItemChange = function (item) {
+        $scope.h_selectedTicker = item;
+    };
+
 
 });

@@ -16,8 +16,20 @@ app.factory('Indexer', function ($resource, config) {
             method: 'GET'
         },
 
+        prefixHistorySearch: {
+            url: config.url + '/query/stock/codes/history/search/:term',
+            method: 'GET',
+            params: {term: '@term'},
+            isArray: true
+        },
+
         totalCodes: {
             url: config.url + '/query/stock/codes/total',
+            method: 'GET'
+        },
+
+        totalCodesHistory: {
+            url: config.url + '/query/stock/codes/history/total',
             method: 'GET'
         }
     });

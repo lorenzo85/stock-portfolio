@@ -27,9 +27,9 @@ public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesInde
     @Autowired
     private EventBus eventBus;
     @Autowired
-    private StockCodeElasticSearchRepository repository;
-    @Autowired
     private ObjectMapper mapper;
+    @Autowired
+    private StockCodeElasticSearchRepository repository;
 
     @PostConstruct
     public void onStartUp() {

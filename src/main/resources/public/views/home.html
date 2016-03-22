@@ -1,6 +1,14 @@
 <div class="row">
     <stats number="{{ totalCodes.totalCount }}"
-           comments="Available market codes"
+           comments="Total market codes"
+           colour="primary"
+           type="support"
+           goto="indexer">
+    </stats>
+</div>
+<div class="row">
+    <stats number="{{ totalCodesHistory.totalCount }}"
+           comments="Total daily stock close prices"
            colour="red"
            type="support"
            goto="indexer">
