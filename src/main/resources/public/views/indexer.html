@@ -18,15 +18,15 @@
                 <md-autocomplete
                         md-min-length="1"
                         md-no-cache="false"
-                        md-item-text="entry.suggestion.code"
+                        md-item-text="entry.code"
                         md-search-text="_searchText"
                         placeholder="Search ticker history ..."
                         md-items="entry in h_querySearch(_searchText)"
                         md-selected-item-change="h_selectedItemChange(entry)">
                     <md-item-template>
-                        <code>{{entry.suggestion.code}}</code> -
-                        <small>{{ entry.suggestion.closePrice }}</small> -
-                        <small>{{ entry.suggestion.date | date:'medium'}}</small>
+                        <code>{{entry.code}}</code> -
+                        <small>{{ entry.closePrice }}</small> -
+                        <small>{{ entry.date | date:'medium'}}</small>
                     </md-item-template>
                     <md-not-found>
                         No tickers matching "<code>{{_searchText}}</code>" were found.
@@ -35,9 +35,9 @@
                 <br>
 
                 <p ng-show="h_selectedTicker != undefined">
-                    Selected ticker history <code>{{h_selectedTicker.suggestion.code}}</code> -
-                    {{ h_selectedTicker.suggestion.closePrice}} -
-                    {{ h_selectedTicker.suggestion.date | date:'medium'}}
+                    Selected ticker history <code>{{h_selectedTicker.code}}</code> -
+                    {{ h_selectedTicker.closePrice}} -
+                    {{ h_selectedTicker.date | date:'medium'}}
                 </p>
             </div>
         </div>
@@ -54,14 +54,14 @@
                 <md-autocomplete
                         md-min-length="1"
                         md-no-cache="false"
-                        md-item-text="item.suggestion.code"
+                        md-item-text="item.code"
                         md-search-text="searchText"
                         placeholder="Search ticker ..."
                         md-items="item in querySearch(searchText)"
                         md-selected-item-change="selectedItemChange(item)">
                     <md-item-template>
-                        <code>{{item.suggestion.code}}</code> -
-                        <small>{{ item.suggestion.description}}</small>
+                        <code>{{item.code}}</code> -
+                        <small>{{ item.description}}</small>
                     </md-item-template>
                     <md-not-found>
                         No tickers matching "<code>{{searchText}}</code>" were found.
@@ -70,8 +70,8 @@
                 <br>
 
                 <p ng-show="selectedTicker != undefined">
-                    Selected ticker <code>{{selectedTicker.suggestion.code}}</code> -
-                    {{ selectedTicker.suggestion.description}}.</p>
+                    Selected ticker <code>{{selectedTicker.code}}</code> -
+                    {{ selectedTicker.description}}.</p>
             </div>
         </div>
     </div>

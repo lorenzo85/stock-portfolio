@@ -1,25 +1,19 @@
 package org.stock.portfolio.indexer.dto;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
+import org.apache.commons.lang.time.FastDateFormat;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.completion.Completion;
 import org.stock.portfolio.domain.StockHistoryEntry;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import static java.lang.String.format;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
 
 
 @Document(
@@ -27,16 +21,14 @@ import static java.lang.String.format;
         type = StockCodeHistoryEntryDto.INDEX_TYPE,
         replicas = StockCodeHistoryEntryDto.INDEX_REPLICAS,
         shards = StockCodeHistoryEntryDto.INDEX_SHARDS)
-public class StockCodeHistoryEntryDto {
+public class StockCodeHistoryEntryDto extends AbstractSuggestion {
+
+    private static FastDateFormat DATE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd");
 
     public static final String INDEX_NAME = "stock-code-history-index";
     public static final String INDEX_TYPE = "stock-code-history";
     public static final int INDEX_REPLICAS = 0;
     public static final int INDEX_SHARDS = 1;
-
-    private static final String COMPLETION_NAME = "stock-code-history";
-    private static final int COMPLETION_RESULTS_SIZE = 100;
-
 
     @Id
     @JsonView(JsonViews.Payload.class)
@@ -54,26 +46,9 @@ public class StockCodeHistoryEntryDto {
     @CompletionField(payloads = true, maxInputLength = 100)
     private Completion suggest;
 
-    static DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
 
     public StockCodeHistoryEntryDto() {
         //required by mapper to instantiate object
-    }
-
-    public static StockCodeHistoryEntryDto fromEntity(ObjectMapper mapper, StockHistoryEntry entry) {
-        StockCodeHistoryEntryDto dto = new StockCodeHistoryEntryDto(entry);
-
-        String code = entry.getCode();
-
-        Date date = entry.getDate();
-        String payload = serializePayload(mapper, dto);
-
-        Completion completion = new Completion(new String[]{code + " " + df.format(date)});
-        completion.setPayload(payload);
-
-        dto.setSuggest(completion);
-        return dto;
     }
 
     private StockCodeHistoryEntryDto(StockHistoryEntry entry) {
@@ -112,51 +87,26 @@ public class StockCodeHistoryEntryDto {
         this.suggest = suggest;
     }
 
+    public static StockCodeHistoryEntryDto fromEntity(ObjectMapper mapper, StockHistoryEntry entry) {
+        StockCodeHistoryEntryDto dto = new StockCodeHistoryEntryDto(entry);
 
-    // Could totally be abstract!
-    @SuppressWarnings("unchecked")
-    public static List<StockCodeHistorySuggestionDto> completionSuggestByTerm(ObjectMapper mapper, Client client, String term) {
-        CompletionSuggestionBuilder builder = new CompletionSuggestionBuilder(COMPLETION_NAME)
-                .field("suggest")
-                .text(term)
-                .size(COMPLETION_RESULTS_SIZE);
+        String code = entry.getCode();
 
-        Suggest.Suggestion suggestions = client.prepareSuggest(INDEX_NAME)
-                .addSuggestion(builder)
-                .execute()
-                .actionGet()
-                .getSuggest()
-                .getSuggestion(COMPLETION_NAME);
+        Date date = entry.getDate();
+        String payload = serializePayload(mapper, dto);
 
-        List<StockCodeHistorySuggestionDto> results = new ArrayList<>();
+        Completion completion = new Completion(new String[]{code + " " + DATE_FORMAT.format(date)});
+        completion.setPayload(payload);
 
-        for (Suggest.Suggestion.Entry next : (Iterable<Suggest.Suggestion.Entry>) suggestions) {
-            next.getOptions()
-                    .forEach(object ->
-                            results.add(StockCodeHistorySuggestionDto.fromOption(mapper, object)));
-        }
-
-        return results;
+        dto.setSuggest(completion);
+        return dto;
     }
 
-    private static String serializePayload(ObjectMapper mapper, StockCodeHistoryEntryDto dto) {
-        try {
-            return mapper
-                    .writerWithView(JsonViews.Payload.class)
-                    .writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException(format("Could not serialize payload for dto=[%s]", dto));
-        }
+    public static StockCodeHistoryEntryDto fromOption(ObjectMapper mapper, Entry.Option option) {
+        checkArgument(option instanceof CompletionSuggestion.Entry.Option);
+
+        CompletionSuggestion.Entry.Option completion = (CompletionSuggestion.Entry.Option) option;
+        return deserializePayload(mapper, completion.getPayloadAsString(), StockCodeHistoryEntryDto.class);
     }
 
-    public static StockCodeHistoryEntryDto deserializePayload(ObjectMapper mapper, String json) {
-        try {
-            return mapper
-                    .readerWithView(JsonViews.Payload.class)
-                    .forType(StockCodeHistoryEntryDto.class)
-                    .readValue(json);
-        } catch (IOException e) {
-            throw new IllegalStateException(format("Could not deserialize payload for json=[%s]", json));
-        }
-    }
 }

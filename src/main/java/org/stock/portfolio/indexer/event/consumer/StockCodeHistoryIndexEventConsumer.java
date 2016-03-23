@@ -1,4 +1,4 @@
-package org.stock.portfolio.indexer;
+package org.stock.portfolio.indexer.event.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.stock.portfolio.domain.StockHistoryEntry;
 import org.stock.portfolio.events.StockCodeHistoryIndexEvent;
+import org.stock.portfolio.indexer.StockCodeHistoryIndex;
 import org.stock.portfolio.indexer.dto.StockCodeHistoryEntryDto;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -18,16 +19,16 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-public class ElasticsearchStockCodeHistoryEventConsumer implements Consumer<Event<StockCodeHistoryIndexEvent>> {
+public class StockCodeHistoryIndexEventConsumer implements Consumer<Event<StockCodeHistoryIndexEvent>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchStockCodeHistoryEventConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StockCodeHistoryIndexEventConsumer.class);
 
     @Autowired
     private EventBus eventBus;
     @Autowired
     private ObjectMapper mapper;
     @Autowired
-    private ElasticsearchStockCodeHistoryRepository repository;
+    private StockCodeHistoryIndex repository;
 
     @PostConstruct
     public void onStartUp() {
@@ -40,6 +41,7 @@ public class ElasticsearchStockCodeHistoryEventConsumer implements Consumer<Even
 
         if (data.failed()) {
             LOG.warn("Error while updating history.");
+
         } else {
             Collection<StockHistoryEntry> entries = data.getHistoryEntry();
 

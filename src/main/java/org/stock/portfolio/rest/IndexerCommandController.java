@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.stock.portfolio.events.StockCodesIndexEvent;
 import org.stock.portfolio.repository.StockCodeRepository;
-import org.stock.portfolio.repository.StockTimeSeriesRepository;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
@@ -21,10 +20,9 @@ public class IndexerCommandController {
     private EventBus eventBus;
     @Autowired
     private StockCodeRepository stockRepository;
-    @Autowired
-    private StockTimeSeriesRepository historyRepository;
 
 
+    // TODO: Move it into the service....
     @RequestMapping(value = "/indexer/codes/reindex", method = RequestMethod.GET)
     @ResponseBody
     public void indexerReindexCodes() {

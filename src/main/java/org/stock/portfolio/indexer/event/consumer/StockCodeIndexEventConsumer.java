@@ -1,4 +1,4 @@
-package org.stock.portfolio.indexer;
+package org.stock.portfolio.indexer.event.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.stock.portfolio.domain.StockCode;
 import org.stock.portfolio.events.StockCodesIndexEvent;
+import org.stock.portfolio.indexer.StockCodeIndex;
 import org.stock.portfolio.indexer.dto.StockCodeDto;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -20,16 +21,16 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @Service
-public class ElasticsearchEventConsumer implements Consumer<Event<StockCodesIndexEvent>> {
+public class StockCodeIndexEventConsumer implements Consumer<Event<StockCodesIndexEvent>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchEventConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StockCodeIndexEventConsumer.class);
 
     @Autowired
     private EventBus eventBus;
     @Autowired
     private ObjectMapper mapper;
     @Autowired
-    private StockCodeElasticSearchRepository repository;
+    private StockCodeIndex repository;
 
     @PostConstruct
     public void onStartUp() {

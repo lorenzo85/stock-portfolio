@@ -1,4 +1,4 @@
-package org.stock.portfolio.indexer;
+package org.stock.portfolio.indexer.config;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.stock.portfolio.indexer.*")
-public class ElasticsearchConfig {
+public class IndexerConfig {
 
     @Bean
     public Client elasticsearchClient() {
