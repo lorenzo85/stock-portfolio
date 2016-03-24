@@ -7,84 +7,10 @@
 
 <div class="row">
 
-    <!-- Suggest stock codes history by term -->
-    <div class="col-lg-6">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Suggest stock code history
-            </div>
-            <div class="panel-body">
-                <p>Suggests a list of stock codes history <code>tickers</code> matching the query term.</p>
-                <md-autocomplete
-                        md-min-length="1"
-                        md-no-cache="false"
-                        md-item-text="entry.code"
-                        md-search-text="_searchText"
-                        placeholder="Search ticker history ..."
-                        md-items="entry in h_querySearch(_searchText)"
-                        md-selected-item-change="h_selectedItemChange(entry)">
-                    <md-item-template>
-                        <code>{{entry.code}}</code> -
-                        <small>{{ entry.closePrice }}</small> -
-                        <small>{{ entry.date | date:'medium'}}</small>
-                    </md-item-template>
-                    <md-not-found>
-                        No tickers matching "<code>{{_searchText}}</code>" were found.
-                    </md-not-found>
-                </md-autocomplete>
-                <br>
-
-                <p ng-show="h_selectedTicker != undefined">
-                    Selected ticker history <code>{{h_selectedTicker.code}}</code> -
-                    {{ h_selectedTicker.closePrice}} -
-                    {{ h_selectedTicker.date | date:'medium'}}
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Suggest stock codes by term -->
-    <div class="col-lg-6">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Suggest stock code
-            </div>
-            <div class="panel-body">
-                <p>Suggests a list of stock codes <code>tickers</code> matching the query term.</p>
-                <md-autocomplete
-                        md-min-length="1"
-                        md-no-cache="false"
-                        md-item-text="item.code"
-                        md-search-text="searchText"
-                        placeholder="Search ticker ..."
-                        md-items="item in querySearch(searchText)"
-                        md-selected-item-change="selectedItemChange(item)">
-                    <md-item-template>
-                        <code>{{item.code}}</code> -
-                        <small>{{ item.description}}</small>
-                    </md-item-template>
-                    <md-not-found>
-                        No tickers matching "<code>{{searchText}}</code>" were found.
-                    </md-not-found>
-                </md-autocomplete>
-                <br>
-
-                <p ng-show="selectedTicker != undefined">
-                    Selected ticker <code>{{selectedTicker.code}}</code> -
-                    {{ selectedTicker.description}}.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="row">
     <!-- All stock codes with pagination -->
     <div class="col-lg-6">
         <div class="panel panel-primary">
-            <div class="panel-heading">
-                Fetch all stock codes
-            </div>
+            <div class="panel-heading">Fetch all stock codes</div>
             <div class="panel-body">
                 <p>Fetches all indexed stock codes from Elasticsearch.</p>
 
@@ -108,15 +34,73 @@
         </div>
     </div>
 
-    <!-- Reindex -->
+    <!-- Suggest stock codes by term -->
     <div class="col-lg-6">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Reindex
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Suggest stock code</div>
+                    <div class="panel-body">
+                        <p>Suggests a list of stock codes <code>tickers</code> matching the query term.</p>
+                        <md-autocomplete
+                                md-min-length="1"
+                                md-no-cache="false"
+                                md-item-text="item.code"
+                                md-search-text="searchText"
+                                placeholder="Search ticker ..."
+                                md-items="item in querySearch(searchText)"
+                                md-selected-item-change="selectedItemChange(item)">
+                            <md-item-template>
+                                <code>{{item.code}}</code> -
+                                <small>{{ item.description}}</small>
+                            </md-item-template>
+                            <md-not-found>
+                                No tickers matching "<code>{{searchText}}</code>" were found.
+                            </md-not-found>
+                        </md-autocomplete>
+                        <br>
+
+                        <p ng-show="selectedTicker != undefined">
+                            Selected ticker <code>{{selectedTicker.code}}</code> -
+                            {{ selectedTicker.description}}.</p>
+                    </div>
+                </div>
             </div>
-            <div class="panel-body">
-                <p>This operation reindexes all the stock codes in Elasticsearch.</p>
-                <button class="btn btn-danger" ng-click="reindex()">Execute</button>
+        </div>
+
+        <div class="row">
+            <!-- Suggest stock codes history by term -->
+            <div class="col-lg-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Suggest stock code history</div>
+                    <div class="panel-body">
+                        <p>Suggests a list of stock codes history <code>tickers</code> matching the query term.</p>
+                        <md-autocomplete
+                                md-min-length="1"
+                                md-no-cache="false"
+                                md-item-text="entry.code"
+                                md-search-text="_searchText"
+                                placeholder="Search ticker history ..."
+                                md-items="entry in h_querySearch(_searchText)"
+                                md-selected-item-change="h_selectedItemChange(entry)">
+                            <md-item-template>
+                                <code>{{entry.code}}</code> -
+                                <small>{{ entry.closePrice }}</small>
+                                -
+                                <small>{{ entry.date | date:'medium'}}</small>
+                            </md-item-template>
+                            <md-not-found>
+                                No tickers matching "<code>{{_searchText}}</code>" were found.
+                            </md-not-found>
+                        </md-autocomplete>
+                        <br>
+                        <p ng-show="h_selectedTicker != undefined">
+                            Selected ticker history <code>{{h_selectedTicker.code}}</code> -
+                            {{ h_selectedTicker.closePrice}} -
+                            {{ h_selectedTicker.date | date:'medium'}}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

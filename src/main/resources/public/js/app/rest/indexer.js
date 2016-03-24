@@ -11,11 +11,6 @@ app.factory('Indexer', function ($resource, config) {
             isArray: true
         },
 
-        reindex: {
-            url: config.url + '/indexer/codes/reindex',
-            method: 'GET'
-        },
-
         prefixHistorySearch: {
             url: config.url + '/query/stock/codes/history/search/:term',
             method: 'GET',

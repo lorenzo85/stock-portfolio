@@ -39,7 +39,6 @@ public class ElasticSearchService implements IndexerService {
     @Autowired
     private StockCodeIndex stockCodeIndex;
 
-
     @Override
     public FacetedPage<StockCodeDto> listAllStockCodes(int page, int size) {
         QueryBuilder builder = QueryBuilders.matchAllQuery();

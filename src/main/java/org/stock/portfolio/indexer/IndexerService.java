@@ -9,17 +9,15 @@ import java.util.List;
 
 public interface IndexerService {
 
-    // Paging on stock codes
+    // Paging
     FacetedPage<StockCodeDto> listAllStockCodes(int page, int size);
 
-    // Total counts
+    // Counts
     TotalCountDto countStockCodes();
-
     TotalCountDto countStockCodeHistoryEntries();
 
     // Suggest
     List<StockCodeDto> suggestStockCodes(String term);
-
     List<StockCodeHistoryEntryDto> suggestStockCodeHistory(String term);
 
 }
