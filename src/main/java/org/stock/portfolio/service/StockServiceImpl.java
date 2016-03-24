@@ -22,8 +22,6 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
-import static org.stock.portfolio.events.Event.Result.FAIL;
-import static org.stock.portfolio.events.Event.Result.SUCCESS;
 
 
 @Service
@@ -48,19 +46,19 @@ public class StockServiceImpl implements StockService {
                 .addCallback(new ListenableFutureCallback<Collection<StockCode>>() {
                     @Override
                     public void onFailure(Throwable throwable) {
-                        StockCodesUpdateEvent storeEvent = new StockCodesUpdateEvent(marketId, throwable, FAIL);
+                        StockCodesUpdateEvent storeEvent = new StockCodesUpdateEvent(marketId, throwable);
                         eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(storeEvent));
 
-                        StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(marketId, throwable, FAIL);
+                        StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(marketId, throwable);
                         eventBus.notify(StockCodesIndexEvent.KEY, Event.wrap(indexEvent));
                     }
 
                     @Override
                     public void onSuccess(Collection<StockCode> codes) {
-                        StockCodesUpdateEvent storeEvent = new StockCodesUpdateEvent(marketId, SUCCESS, codes);
+                        StockCodesUpdateEvent storeEvent = new StockCodesUpdateEvent(marketId, codes);
                         eventBus.notify(StockCodesUpdateEvent.KEY, Event.wrap(storeEvent));
 
-                        StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(marketId, SUCCESS, codes);
+                        StockCodesIndexEvent indexEvent = new StockCodesIndexEvent(marketId, codes);
                         eventBus.notify(StockCodesIndexEvent.KEY, Event.wrap(indexEvent));
                     }
                 });
@@ -77,13 +75,13 @@ public class StockServiceImpl implements StockService {
                 .addCallback(new ListenableFutureCallback<Collection<StockHistoryEntry>>() {
                     @Override
                     public void onFailure(Throwable throwable) {
-                        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, throwable, FAIL);
+                        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, throwable);
                         eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
                     }
 
                     @Override
                     public void onSuccess(Collection<StockHistoryEntry> entries) {
-                        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, SUCCESS, entries);
+                        StockCodeHistoryUpdateEvent event = new StockCodeHistoryUpdateEvent(marketId, code, dataset, entries);
                         eventBus.notify(StockCodeHistoryUpdateEvent.KEY, Event.wrap(event));
 
                         entries.forEach(historyEntry -> {
@@ -91,7 +89,7 @@ public class StockServiceImpl implements StockService {
                             historyEntry.setMarketId(marketId);
                         });
 
-                        StockCodeHistoryIndexEvent indexEvent = new StockCodeHistoryIndexEvent(SUCCESS, entries);
+                        StockCodeHistoryIndexEvent indexEvent = new StockCodeHistoryIndexEvent(entries);
                         eventBus.notify(StockCodeHistoryIndexEvent.KEY, Event.wrap(indexEvent));
                     }
                 });

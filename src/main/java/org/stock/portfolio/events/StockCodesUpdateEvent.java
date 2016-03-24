@@ -8,11 +8,11 @@ public class StockCodesUpdateEvent extends AbstractStockCodesEvent {
 
     public static final String KEY = StockCodesUpdateEvent.class.getSimpleName();
 
-    public StockCodesUpdateEvent(String marketId, Throwable e, Result success) {
-        super(marketId, e, success);
+    public StockCodesUpdateEvent(String marketId, Throwable e) {
+        super(marketId, e);
     }
 
-    public StockCodesUpdateEvent(String marketId, Result result, Collection<StockCode> codes) {
-        super(marketId, result, codes);
+    public StockCodesUpdateEvent(String marketId, Collection<StockCode> codes) {
+        super(marketId, codes);
     }
 }

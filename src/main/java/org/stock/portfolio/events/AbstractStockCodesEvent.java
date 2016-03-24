@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.stock.portfolio.events.Event.Result.FAIL;
+import static org.stock.portfolio.events.Event.Result.SUCCESS;
 
 abstract class AbstractStockCodesEvent implements Event {
 
@@ -13,20 +15,21 @@ abstract class AbstractStockCodesEvent implements Event {
 
     private final Collection<StockCode> codes;
     private final String marketId;
-    private final Event.Result result;
 
-    public AbstractStockCodesEvent(String marketId, Throwable e, Event.Result success) {
-        this(marketId, success, new ArrayList<>());
+    private Event.Result result;
+
+    public AbstractStockCodesEvent(String marketId, Throwable e) {
+        this(marketId, new ArrayList<>());
         this.exception = e;
+        this.result = FAIL;
     }
 
-    public AbstractStockCodesEvent(String marketId, Event.Result result, Collection<StockCode> codes) {
+    public AbstractStockCodesEvent(String marketId, Collection<StockCode> codes) {
         checkNotNull(marketId);
-        checkNotNull(result);
         checkNotNull(codes);
 
         this.codes = codes;
-        this.result = result;
+        this.result = SUCCESS;
         this.marketId = marketId;
     }
 
@@ -47,6 +50,6 @@ abstract class AbstractStockCodesEvent implements Event {
     }
 
     public boolean failed() {
-        return result == Result.FAIL;
+        return result == FAIL;
     }
 }
