@@ -1,18 +1,16 @@
-package org.stock.portfolio;
+package org.stock.portfolio.service.quandl.dto;
 
 import org.jsefa.csv.CsvDeserializer;
 import org.jsefa.csv.CsvIOFactory;
 import org.jsefa.csv.config.CsvConfiguration;
 import org.junit.Test;
-import org.stock.portfolio.service.quandl.dto.StockCodeDto;
 
 import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-
-public class CsvTest extends AbstracJUnitTest {
+public class StockCodeDtoDeserializeTest {
 
     @Test
     public void shouldCorrectlyMapCsvLine() {
@@ -33,4 +31,5 @@ public class CsvTest extends AbstracJUnitTest {
         assertEquals(stockCodeDto.getCode(), "A");
         assertEquals("Agilent Technologies, Inc. (A) Prices, Dividends, Splits and Trading Volume", stockCodeDto.getDescription());
     }
+
 }

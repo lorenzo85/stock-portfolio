@@ -1,4 +1,4 @@
-package org.stock.portfolio.service.quandl.service;
+package org.stock.portfolio;
 
 
 

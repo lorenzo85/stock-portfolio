@@ -31,16 +31,16 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
-import static org.stock.portfolio.service.quandl.service.AssertionUtils.assertThatAreRefEquals;
+import static org.stock.portfolio.AssertionUtils.assertThatAreRefEquals;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {ServiceConfig.class, ReactorConfig.class, TestConfig.class})
 public class QuandlServiceTest {
 
-    @Autowired HttpClient httpClient;
-    @Autowired QuandlServiceImpl quandl;
     @Autowired Deserializer deserializer;
+    @Autowired QuandlServiceImpl quandl;
+    @Autowired HttpClient httpClient;
     @Autowired EventBus eventBus;
 
     List<StockCodeDto> dtos = asList(
@@ -53,7 +53,7 @@ public class QuandlServiceTest {
 
     ZipFile mockZipFile;
 
-/**
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -63,8 +63,7 @@ public class QuandlServiceTest {
 
         mockZipFile = mock(ZipFile.class);
 
-        when(httpClient.(eq("url1"))).thenReturn(httpClient);
-        when(httpClient.get(eq("url2"))).thenReturn(httpClient);
+        when(httpClient.getAsZip(eq("url1"))).thenReturn(mockZipFile);
     }
 
     @Test
@@ -72,7 +71,6 @@ public class QuandlServiceTest {
         // Given
         String fileName = "stockCodes.csv";
 
-        when(httpClient.bodyAsZip()).thenReturn(mockZipFile);
         when(mockZipFile.unzip()).thenReturn(singletonList(fileName));
         when(deserializer.deserialize(eq(fileName), eq(StockCodeDto.class))).thenReturn(dtos);
 
@@ -83,13 +81,10 @@ public class QuandlServiceTest {
         assertThatAreRefEquals(codes, result);
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = HttpClientException.class)
     public void shouldThrowExceptionWhenHttpClientThrowsException() throws HttpClientException, ServiceException {
         // Given
-        HttpMethod method = mock(HttpMethod.class);
-        when(method.getStatusCode()).thenReturn(HttpStatus.SC_FORBIDDEN);
-
-        doThrow(new HttpClientException(method)).when(httpClient).get(anyString());
+        doThrow(new HttpClientException(new Exception())).when(httpClient).getAsZip(anyString());
 
         // Expect
         quandl.fetchStockCodes("LSE");
@@ -101,7 +96,6 @@ public class QuandlServiceTest {
         String fileName1 = "stockCodes1.csv";
         String fileName2 = "stockCodes2.csv";
 
-        when(httpClient.bodyAsZip()).thenReturn(mockZipFile);
         when(mockZipFile.unzip()).thenReturn(Arrays.<String>asList(fileName1, fileName2));
         when(deserializer.deserialize(eq(fileName2), eq(StockCodeDto.class))).thenReturn(dtos);
 
@@ -120,7 +114,7 @@ public class QuandlServiceTest {
         assertThatAreRefEquals(codes, result);
 
         verify(eventBus).notify(eq(ServiceExceptionEvent.KEY), any(Event.class));
-    }*/
+    }
 
     @After
     public void tearDown() {
