@@ -6,14 +6,12 @@
 <br>
 
 <div class="row">
-
-    <!-- All stock codes with pagination -->
     <div class="col-lg-6">
+        <!-- All stock codes with pagination -->
         <div class="panel panel-primary">
             <div class="panel-heading">Fetch all stock codes</div>
             <div class="panel-body">
                 <p>Fetches all indexed stock codes from Elasticsearch.</p>
-
                 <div class="col-lg-12">
                     <ul class="list-group">
                         <li class="list-group-item" ng-repeat="code in marketCodes.content">
@@ -34,8 +32,8 @@
         </div>
     </div>
 
-    <!-- Suggest stock codes by term -->
     <div class="col-lg-6">
+        <!-- Suggest stock codes by term -->
         <div class="row">
             <div class="col-lg-12">
                 <div class="panel panel-primary">
@@ -67,9 +65,8 @@
                 </div>
             </div>
         </div>
-
+        <!-- Suggest stock codes history by term -->
         <div class="row">
-            <!-- Suggest stock codes history by term -->
             <div class="col-lg-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Suggest stock code history</div>
