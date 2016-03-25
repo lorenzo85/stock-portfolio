@@ -35,7 +35,7 @@ import static org.stock.portfolio.AssertionUtils.assertThatAreRefEquals;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {ServiceConfig.class, ReactorConfig.class, TestConfig.class})
+@SpringApplicationConfiguration(classes = {ServiceConfig.class, ReactorConfig.class, ServiceTestConfig.class})
 public class QuandlServiceTest {
 
     @Autowired Deserializer deserializer;
@@ -66,8 +66,13 @@ public class QuandlServiceTest {
         when(httpClient.getAsZip(eq("url1"))).thenReturn(mockZipFile);
     }
 
+    @After
+    public void tearDown() {
+        reset(mockZipFile, httpClient, deserializer);
+    }
+
     @Test
-    public void shouldSuccessfullyFetchStockCodes() throws Exception {
+    public void fetchStockCodes_Success() throws Exception {
         // Given
         String fileName = "stockCodes.csv";
 
@@ -82,7 +87,7 @@ public class QuandlServiceTest {
     }
 
     @Test(expected = HttpClientException.class)
-    public void shouldThrowExceptionWhenHttpClientThrowsException() throws HttpClientException, ServiceException {
+    public void fetchStockCodes_ExceptionThrown() throws HttpClientException, ServiceException {
         // Given
         doThrow(new HttpClientException(new Exception())).when(httpClient).getAsZip(anyString());
 
@@ -91,7 +96,7 @@ public class QuandlServiceTest {
     }
 
     @Test
-    public void shouldKeepDeserializingAfterExceptionThrown() throws Exception {
+    public void fetchStockCodes_ExceptionThrown_KeepsDeserializingCSVs() throws Exception {
         // Given
         String fileName1 = "stockCodes1.csv";
         String fileName2 = "stockCodes2.csv";
@@ -115,12 +120,6 @@ public class QuandlServiceTest {
 
         verify(eventBus).notify(eq(ServiceExceptionEvent.KEY), any(Event.class));
     }
-
-    @After
-    public void tearDown() {
-        reset(mockZipFile, httpClient, deserializer);
-    }
-
 
     private static StockCodeDto newStockCodeDto(String dataset, String code, String description) {
         StockCodeDto dto = new StockCodeDto();

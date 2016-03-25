@@ -11,11 +11,15 @@ import java.util.HashSet;
 @Component
 public class CSVDeserializer implements Deserializer {
 
+    private static CsvConfiguration configuration;
+    static {
+        configuration = new CsvConfiguration();
+        configuration.setFieldDelimiter(',');
+    }
+
     @Override
     public <T> Collection<T> deserialize(String filePath, Class<? extends T> type) {
         FileReader reader = new FileReader(filePath);
-        CsvConfiguration configuration = new CsvConfiguration();
-        configuration.setFieldDelimiter(',');
 
         org.jsefa.Deserializer deserializer = CsvIOFactory.createFactory(configuration, type).createDeserializer();
         deserializer.open(reader);

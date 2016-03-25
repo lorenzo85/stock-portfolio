@@ -2,7 +2,7 @@ package org.stock.portfolio.service.quandl.mapper;
 
 import org.springframework.stereotype.Component;
 import org.stock.portfolio.domain.StockHistoryEntry;
-import org.stock.portfolio.service.quandl.dto.StockHistoryDto;
+import org.stock.portfolio.service.quandl.dto.StockCodeHistoryEntryDto;
 import org.stock.portfolio.service.quandl.mapper.internal.ColumnsDefinition;
 import org.stock.portfolio.service.quandl.mapper.internal.MapperDefinition1;
 import org.stock.portfolio.service.quandl.mapper.internal.MapperDefinition2;
@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @Component
-public class StockHistoryMapper implements Mapper<StockHistoryDto, Collection<StockHistoryEntry>> {
+public class StockHistoryMapper implements Mapper<StockCodeHistoryEntryDto, Collection<StockHistoryEntry>> {
 
     @Override
-    public Collection<StockHistoryEntry> map(StockHistoryDto stockHistory) {
+    public Collection<StockHistoryEntry> map(StockCodeHistoryEntryDto stockHistory) {
         Mapper<List<Object>, StockHistoryEntry> mapper = getMapper(stockHistory.getColumnNames());
 
         return stockHistory.getCodeHistoryEntries()

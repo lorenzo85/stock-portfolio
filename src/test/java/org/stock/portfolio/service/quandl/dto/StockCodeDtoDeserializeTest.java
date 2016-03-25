@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 public class StockCodeDtoDeserializeTest {
 
     @Test
-    public void shouldCorrectlyMapCsvLine() {
+    public void deserialize_Success() {
         // Given
         String csv = "WIKI/A,\"Agilent Technologies, Inc. (A) Prices, Dividends, Splits and Trading Volume\"";
 
@@ -31,5 +31,17 @@ public class StockCodeDtoDeserializeTest {
         assertEquals(stockCodeDto.getCode(), "A");
         assertEquals("Agilent Technologies, Inc. (A) Prices, Dividends, Splits and Trading Volume", stockCodeDto.getDescription());
     }
+
+    @Test
+    public void deserialize_ExceptionThrown() {
+        // Given
+        String invalidCsv = "AnInvalidCsv";
+
+
+        // When
+
+        // Then
+    }
+
 
 }

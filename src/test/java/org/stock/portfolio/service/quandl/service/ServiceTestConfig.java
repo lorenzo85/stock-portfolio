@@ -9,7 +9,7 @@ import org.stock.portfolio.service.serialization.Deserializer;
 import reactor.bus.EventBus;
 
 @Configuration
-public class TestConfig {
+public class ServiceTestConfig {
 
     @Bean
     @Primary

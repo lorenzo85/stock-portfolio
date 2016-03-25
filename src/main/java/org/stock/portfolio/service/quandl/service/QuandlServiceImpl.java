@@ -12,7 +12,7 @@ import org.stock.portfolio.service.StockServiceProvider;
 import org.stock.portfolio.service.commons.FileExtension;
 import org.stock.portfolio.service.commons.HttpClient;
 import org.stock.portfolio.service.quandl.dto.StockCodeDto;
-import org.stock.portfolio.service.quandl.dto.StockHistoryWrapperDto;
+import org.stock.portfolio.service.quandl.dto.StockCodeHistoryEntryWrapper;
 import org.stock.portfolio.service.quandl.mapper.StockCodeMapper;
 import org.stock.portfolio.service.quandl.mapper.StockHistoryMapper;
 import org.stock.portfolio.service.serialization.Deserializer;
@@ -69,8 +69,8 @@ public class QuandlServiceImpl implements StockServiceProvider {
 
         String url = format(fetchCodeDataSerieURL, dataset, code, quandlApiKey);
 
-        StockHistoryWrapperDto dto = client.getAsObject(url, StockHistoryWrapperDto.class);
-        return historyMapper.map(dto.getStockHistoryDto());
+        StockCodeHistoryEntryWrapper dto = client.getAsObject(url, StockCodeHistoryEntryWrapper.class);
+        return historyMapper.map(dto.getStockCodeHistoryEntryDto());
     }
 
 }

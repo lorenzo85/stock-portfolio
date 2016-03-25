@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class StockHistoryDto {
+public class StockCodeHistoryEntryDto {
 
     @JsonProperty("column_names")
     private List<String> columnNames;
