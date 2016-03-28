@@ -2,9 +2,10 @@ package org.stock.portfolio.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.stock.portfolio.domain.StockCode;
-import org.stock.portfolio.repository.StockCodeRepository;
-import org.stock.portfolio.service.StockService;
+import org.stock.portfolio.stockcode.StockCode;
+import org.stock.portfolio.stockcode.StockCodePersistenceRepository;
+import org.stock.portfolio.stockcode.StockCodeService;
+import org.stock.portfolio.stockcodehistory.StockCodeHistoryService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
@@ -13,31 +14,33 @@ import static java.lang.String.format;
 public class StockCommandController {
 
     @Autowired
-    private StockService stockService;
+    private StockCodeService stockService;
     @Autowired
-    private StockCodeRepository repository;
+    private StockCodeHistoryService stockCodeHistoryService;
+    @Autowired
+    private StockCodePersistenceRepository repository;
 
     @RequestMapping(value = "/update/market/codes", method = RequestMethod.GET)
     @ResponseBody
-    public void updateMarketCodes(@RequestParam(name = "marketid") String marketId) throws Exception {
+    public void updateMarketCodes(@RequestParam("marketid") String marketId) throws Exception {
         stockService.fetchStockCodes(marketId);
     }
 
     @RequestMapping(value = "/update/history/code", method = RequestMethod.GET)
     @ResponseBody
-    public void updateHistoryCode(@RequestParam(name = "marketid") String marketId, @RequestParam(name = "code") String code) throws Exception {
+    public void updateHistoryCode(@RequestParam("marketid") String marketId, @RequestParam("code") String code) throws Exception {
         StockCode byMarketIdAndCode = repository.findByMarketIdAndCode(marketId, code);
         checkNotNull(byMarketIdAndCode, format("Could not find stock code for marketId=[%s] and code=[%s]", marketId, code));
 
         String dataset = byMarketIdAndCode.getDataset();
-        stockService.fetchStockCodeHistory(marketId, code, dataset);
+        stockCodeHistoryService.fetchStockCodeHistory(marketId, code, dataset);
     }
 
     @RequestMapping(value = "/update/history/code/all", method = RequestMethod.GET)
     @ResponseBody
     public void updateHistoryCode() {
         Iterable<StockCode> allCodes = repository.findAll();
-        stockService.fetchAllStockCodeHistory(allCodes);
+        stockCodeHistoryService.fetchAllStockCodeHistory(allCodes);
     }
 
 }
