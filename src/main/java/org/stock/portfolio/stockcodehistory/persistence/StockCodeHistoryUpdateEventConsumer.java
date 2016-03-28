@@ -16,7 +16,7 @@ import static org.stock.portfolio.commons.events.Event.Result;
 import static reactor.bus.selector.Selectors.$;
 
 @Service
-public class CassandraCodeEntriesUpdateEventConsumer implements Consumer<Event<StockCodeHistoryUpdateEvent>> {
+public class StockCodeHistoryUpdateEventConsumer implements Consumer<Event<StockCodeHistoryUpdateEvent>> {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 

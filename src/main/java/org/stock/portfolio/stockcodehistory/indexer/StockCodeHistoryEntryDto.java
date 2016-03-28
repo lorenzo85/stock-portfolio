@@ -104,6 +104,7 @@ public class StockCodeHistoryEntryDto extends AbstractSuggestion {
         return dto;
     }
 
+    // TODO: Should be toEntityFromOption
     public static StockCodeHistoryEntryDto fromOption(ObjectMapper mapper, Entry.Option option) {
         checkArgument(option instanceof CompletionSuggestion.Entry.Option);
 
